@@ -209,4 +209,4 @@ class Ui_MainWindow(object):
         self.lbl_select.setText(_translate("MainWindow", "620 x 514 пкс"))
         self.lbl_size.setText(_translate("MainWindow", "1024 x 1024 пкс"))
         self.lbl_scale.setText(_translate("MainWindow", "100%"))
-import res_rc
+import views.ui.res_rc
