@@ -28,29 +28,89 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
         self.frame.setSizePolicy(sizePolicy)
-        self.frame.setStyleSheet("background-color: rgba(245, 246, 247, 0);")
+        self.frame.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setLineWidth(0)
         self.frame.setObjectName("frame")
-        self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.frame)
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.frame)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setSpacing(0)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.frame_3 = QtWidgets.QFrame(self.frame)
+        self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_3.setObjectName("frame_3")
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.frame_3)
         self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_6.setSpacing(0)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
-        self.tabWidget = QtWidgets.QTabWidget(self.frame)
-        self.tabWidget.setMinimumSize(QtCore.QSize(0, 100))
-        self.tabWidget.setStyleSheet("background-color: rgb(245, 246, 247);")
-        self.tabWidget.setObjectName("tabWidget")
-        self.tab_3 = QtWidgets.QWidget()
-        self.tab_3.setObjectName("tab_3")
-        self.tabWidget.addTab(self.tab_3, "")
-        self.tab = QtWidgets.QWidget()
-        self.tab.setObjectName("tab")
-        self.tabWidget.addTab(self.tab, "")
-        self.tab_2 = QtWidgets.QWidget()
-        self.tab_2.setObjectName("tab_2")
-        self.tabWidget.addTab(self.tab_2, "")
-        self.horizontalLayout_6.addWidget(self.tabWidget)
+        self.cb_file = QtWidgets.QLabel(self.frame_3)
+        self.cb_file.setStyleSheet("background-color: rgb(25, 121, 202); \n"
+"color: rgb(255, 255, 255);\n"
+"padding: 5px;\n"
+"")
+        self.cb_file.setObjectName("cb_file")
+        self.horizontalLayout_6.addWidget(self.cb_file)
+        self.btn_main = QtWidgets.QPushButton(self.frame_3)
+        self.btn_main.setMouseTracking(True)
+        self.btn_main.setStyleSheet("QPushButton {\n"
+"    border-radius: 1px;       /* Закругленные углы */\n"
+"    background-color: rgb(255, 255, 255);  /* Белый фон */\n"
+"    min-width: 80px;          /* Минимальная ширина */\n"
+"    padding: 5px;             /* Отступы внутри кнопки */\n"
+"    border: none;             /* Убираем границу */\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: rgb(245, 246, 247);  /* Серый фон при нажатии */\n"
+"    padding: 5px;             /* Отступы внутри кнопки */\n"
+"    border: none;             /* Убираем границу */\n"
+"}")
+        self.btn_main.setCheckable(True)
+        self.btn_main.setChecked(True)
+        self.btn_main.setObjectName("btn_main")
+        self.horizontalLayout_6.addWidget(self.btn_main, 0, QtCore.Qt.AlignLeft)
+        self.btn_tools = QtWidgets.QPushButton(self.frame_3)
+        self.btn_tools.setStyleSheet("QPushButton {\n"
+"    border-radius: 1px;       /* Закругленные углы */\n"
+"    background-color: rgb(255, 255, 255);  /* Белый фон */\n"
+"    min-width: 80px;          /* Минимальная ширина */\n"
+"    padding: 5px;             /* Отступы внутри кнопки */\n"
+"    border: none;             /* Убираем границу */\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: rgb(245, 246, 247);  /* Серый фон при нажатии */\n"
+"    padding: 5px;             /* Отступы внутри кнопки */\n"
+"    border: none;             /* Убираем границу */\n"
+"}")
+        self.btn_tools.setCheckable(True)
+        self.btn_tools.setObjectName("btn_tools")
+        self.horizontalLayout_6.addWidget(self.btn_tools, 0, QtCore.Qt.AlignLeft)
+        self.verticalLayout_2.addWidget(self.frame_3, 0, QtCore.Qt.AlignLeft)
+        self.frame_2 = QtWidgets.QFrame(self.frame)
+        self.frame_2.setMinimumSize(QtCore.QSize(0, 50))
+        self.frame_2.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_2.setLineWidth(0)
+        self.frame_2.setObjectName("frame_2")
+        self.horizontalLayout_8 = QtWidgets.QHBoxLayout(self.frame_2)
+        self.horizontalLayout_8.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_8.setSpacing(0)
+        self.horizontalLayout_8.setObjectName("horizontalLayout_8")
+        self.stackedWidget = QtWidgets.QStackedWidget(self.frame_2)
+        self.stackedWidget.setStyleSheet("background-color: rgb(245, 246, 247); ")
+        self.stackedWidget.setLineWidth(0)
+        self.stackedWidget.setObjectName("stackedWidget")
+        self.main_page = QtWidgets.QWidget()
+        self.main_page.setObjectName("main_page")
+        self.stackedWidget.addWidget(self.main_page)
+        self.tools_page = QtWidgets.QWidget()
+        self.tools_page.setObjectName("tools_page")
+        self.stackedWidget.addWidget(self.tools_page)
+        self.horizontalLayout_8.addWidget(self.stackedWidget)
+        self.verticalLayout_2.addWidget(self.frame_2)
         self.verticalLayout.addWidget(self.frame)
         self.frame_paint = QtWidgets.QFrame(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -63,6 +123,8 @@ class Ui_MainWindow(object):
         self.frame_paint.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_paint.setObjectName("frame_paint")
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout(self.frame_paint)
+        self.horizontalLayout_7.setContentsMargins(3, 3, 3, 3)
+        self.horizontalLayout_7.setSpacing(3)
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         self.lbl_paint = QtWidgets.QLabel(self.frame_paint)
         self.lbl_paint.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -195,15 +257,14 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Файл"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Главная"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Инструменты"))
+        self.cb_file.setText(_translate("MainWindow", "Файл"))
+        self.btn_main.setText(_translate("MainWindow", "Главная"))
+        self.btn_tools.setText(_translate("MainWindow", "Инструменты"))
         self.lbl_pos.setText(_translate("MainWindow", "x:..., y:..."))
         self.lbl_rgb.setText(_translate("MainWindow", "R:255, G:255, B: 255"))
         self.lbl_select.setText(_translate("MainWindow", "620 x 514 пкс"))

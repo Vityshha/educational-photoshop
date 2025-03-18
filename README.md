@@ -2,7 +2,7 @@
 
 
 ```angular2html
-pyuic5 name.ui -o name.py
+pyuic5 .\main_window.ui -o main_window.py
 ```
 
 
