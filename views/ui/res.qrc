@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="newPrefix">
+    <file>images/redo.png</file>
+    <file>images/undo.png</file>
     <file>images/shape.png</file>
     <file>images/select.png</file>
     <file>images/pos.png</file>

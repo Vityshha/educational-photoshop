@@ -23,6 +23,9 @@ class MainController(QObject):
     def connect_signals(self):
         self.view.signal_open_image.connect(self.image_sender)
         self.view.signal_save_image.connect(self.save_image)
+        self.view.signal_undo_image.connect(self.image_model.get_undo_image)
+        self.view.signal_redo_image.connect(self.image_model.get_redo_image)
+
         self.image_model.signal_image_change.connect(self.view.put_image)
 
 
