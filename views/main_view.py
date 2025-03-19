@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen
+from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen, QPainterPath
 from PyQt5.QtWidgets import QMainWindow, QComboBox, QFileDialog
 from views.ui.main_window import Ui_MainWindow
 from views.views_enums import ComboBoxItem, StackedWidget, ComboBoxSelect
@@ -138,6 +138,8 @@ class MainWindow(QMainWindow):
                     height = abs(self.end_point[1] - self.start_point[1])
                     self.put_select_size(width, height)
 
+                    self.points = [self.start_point]
+
             elif event.type() == QEvent.MouseMove:
                 self.end_point = self.scale_coordinates(event.x(), event.y())
                 self.signal_coordinates.emit(self.end_point[0], self.end_point[1])
@@ -146,6 +148,9 @@ class MainWindow(QMainWindow):
                     width = abs(self.end_point[0] - self.start_point[0])
                     height = abs(self.end_point[1] - self.start_point[1])
                     self.put_select_size(width, height)
+
+                    if self.selection_type == ComboBoxSelect.FREEHAND.value:
+                        self.points.append(self.end_point)
 
             elif event.type() == QEvent.MouseButtonRelease:
                 if event.button() == Qt.LeftButton and self.is_selection_tool_active:
@@ -156,6 +161,11 @@ class MainWindow(QMainWindow):
                     width = abs(self.end_point[0] - self.start_point[0])
                     height = abs(self.end_point[1] - self.start_point[1])
                     self.put_select_size(width, height)
+
+                    if self.selection_type == ComboBoxSelect.FREEHAND.value:
+                        # Замыкаем путь
+                        self.points.append(self.points[0])
+                        self.update_temp_selection()
 
         return super().eventFilter(obj, event)
 
@@ -173,7 +183,11 @@ class MainWindow(QMainWindow):
                 painter.drawRect(rect)
             else:
                 # Для произвольной области можно использовать QPainterPath
-                pass
+                path = QPainterPath()
+                path.moveTo(QPoint(*self.points[0]))
+                for point in self.points[1:]:
+                    path.lineTo(QPoint(*point))
+                painter.drawPath(path)
 
             painter.end()
             self.ui.lbl_paint.setPixmap(pixmap)
