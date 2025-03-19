@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="newPrefix">
+    <file>images/picture_in_picture.png</file>
+    <file>images/photo_size_select.png</file>
     <file>images/redo.png</file>
     <file>images/undo.png</file>
     <file>images/shape.png</file>

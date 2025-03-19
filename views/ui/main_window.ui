@@ -206,6 +206,9 @@ QPushButton:checked {
             <property name="lineWidth">
              <number>0</number>
             </property>
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
             <widget class="QWidget" name="main_page">
              <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item>
@@ -243,7 +246,154 @@ QPushButton:checked {
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="tools_page"/>
+            <widget class="QWidget" name="tools_page">
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QFrame" name="frame_8">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_3">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_select_frame">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">image: url(:/newPrefix/images/photo_size_select.png);
+background-color: transparent;
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="lbl_select_frame">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Выделить</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="line_4">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignLeft">
+               <widget class="QFrame" name="frame_9">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="pushButton">
+                   <property name="styleSheet">
+                    <string notr="true">image: url(:/newPrefix/images/picture_in_picture.png);
+background-color: transparent;
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>Изменить размер</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="frame_10">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="frame_11">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
          </layout>
@@ -286,19 +436,44 @@ QPushButton:checked {
         <number>3</number>
        </property>
        <item>
-        <widget class="QLabel" name="lbl_paint">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <widget class="QScrollArea" name="scrollArea">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
          </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="scaledContents">
+         <property name="widgetResizable">
           <bool>true</bool>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>792</width>
+            <height>478</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="leftMargin">
+            <number>9</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="lbl_paint">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="scaledContents">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>
