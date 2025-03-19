@@ -9,3 +9,7 @@ class ComboBoxItem(Enum):
 class StackedWidget(Enum):
     MAIN = 0
     TOOLS = 1
+
+class ComboBoxSelect(Enum):
+    RECTANGLE = 0
+    ARBITRARY = 1

@@ -47,5 +47,7 @@ class MainController(QObject):
     def get_image_rgb(self, x, y):
         image = self.image_model.get_current_image()
         if image is not None:
-            r, g, b = Utils.get_rgb(image, x, y)
-            self.signal_send_rgb.emit(r, g, b)
+            try:
+                r, g, b = Utils.get_rgb(image, x, y)
+                self.signal_send_rgb.emit(r, g, b)
+            except: pass
