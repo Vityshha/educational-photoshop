@@ -12,4 +12,4 @@ class StackedWidget(Enum):
 
 class ComboBoxSelect(Enum):
     RECTANGLE = 0
-    ARBITRARY = 1
+    FREEHAND = 1

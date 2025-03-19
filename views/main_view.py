@@ -1,10 +1,9 @@
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen
 from PyQt5.QtWidgets import QMainWindow, QComboBox, QFileDialog
 from views.ui.main_window import Ui_MainWindow
 from views.views_enums import ComboBoxItem, StackedWidget, ComboBoxSelect
-from PyQt5.QtCore import pyqtSlot, pyqtSignal, QEvent
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, QEvent, Qt, QRect, QPoint
 import numpy as np
-import cv2
 
 
 class MainWindow(QMainWindow):
@@ -23,6 +22,14 @@ class MainWindow(QMainWindow):
         self.init_ui()
         self.init_connections()
 
+        self.drawing = False
+        self.selection_type = ComboBoxSelect.RECTANGLE.value
+        self.start_point = None
+        self.end_point = None
+        self.selection_mask = None
+        self.temp_pixmap = None
+        self.is_selection_tool_active = False  # Флаг активности инструмента выделения
+        self.original_pixmap = None  # Сохраняем исходное изображение
 
     def init_ui(self):
         self.init_combo_box()
@@ -30,6 +37,10 @@ class MainWindow(QMainWindow):
         self.ui.lbl_paint.setMouseTracking(True)
         self.ui.stackedWidget.setCurrentIndex(StackedWidget.MAIN.value)
 
+        self.ui.slider.setMinimum(10)  # Минимальный масштаб 10%
+        self.ui.slider.setMaximum(200)  # Максимальный масштаб 200%
+        self.ui.slider.setValue(100)  # Начальное значение 100%
+        self.ui.scrollArea.setWidgetResizable(True)
 
     def init_connections(self):
         self.ui.btn_main.clicked.connect(self.switch_button_status)
@@ -37,7 +48,6 @@ class MainWindow(QMainWindow):
         self.ui.btn_redo.clicked.connect(self.switch_image)
         self.ui.btn_undo.clicked.connect(self.switch_image)
         self.ui.slider.valueChanged.connect(self.slider_changed)
-
 
     def init_combo_box(self):
         self.combo_box = QComboBox(self)
@@ -67,7 +77,6 @@ class MainWindow(QMainWindow):
     def show_combo_box_select(self, event):
         self.combo_box_select.showPopup()
 
-
     def on_combo_box_changed(self, index):
         selected_index = self.combo_box.currentIndex()
         if selected_index == ComboBoxItem.OPEN.value:
@@ -81,8 +90,12 @@ class MainWindow(QMainWindow):
         selected_index = self.combo_box_select.currentIndex()
         if selected_index == ComboBoxSelect.RECTANGLE.value:
             print('Прямоугольная область')
+            self.selection_type = ComboBoxSelect.RECTANGLE.value
+            self.is_selection_tool_active = True
         else:
             print('Произвольная область')
+            self.selection_type = ComboBoxSelect.FREEHAND.value
+            self.is_selection_tool_active = True
 
     def switch_button_status(self):
         sender = self.sender()
@@ -98,7 +111,6 @@ class MainWindow(QMainWindow):
         else:
             self.ui.stackedWidget.setCurrentIndex(StackedWidget.TOOLS.value)
 
-
     def switch_image(self):
         sender = self.sender()
         if sender == self.ui.btn_undo:
@@ -108,21 +120,83 @@ class MainWindow(QMainWindow):
             print('Переключаем на следующее состояние если есть')
             self.signal_redo_image.emit()
 
-
     def eventFilter(self, obj, event):
         if obj == self.ui.lbl_paint and event.type() == QEvent.Resize:
             new_size = self.ui.lbl_paint.size()
             self.put_holst_size(new_size.width(), new_size.height())
 
         if obj == self.ui.lbl_paint:
-            if event.type() == QEvent.MouseMove:
-                x = event.x()
-                y = event.y()
-                original_x, original_y = self.scale_coordinates(x, y)
-                self.put_position_mouse(original_x, original_y)
-                self.signal_coordinates.emit(original_x, original_y)
+            if event.type() == QEvent.MouseButtonPress:
+                if event.button() == Qt.LeftButton and self.is_selection_tool_active:
+                    self.clear_selection()
+                    self.drawing = True
+                    self.start_point = self.scale_coordinates(event.x(), event.y())
+                    self.end_point = self.start_point
+                    self.original_pixmap = self.ui.lbl_paint.pixmap().copy()
+
+                    width = abs(self.end_point[0] - self.start_point[0])
+                    height = abs(self.end_point[1] - self.start_point[1])
+                    self.put_select_size(width, height)
+
+            elif event.type() == QEvent.MouseMove:
+                self.end_point = self.scale_coordinates(event.x(), event.y())
+                self.signal_coordinates.emit(self.end_point[0], self.end_point[1])
+                if self.drawing and self.is_selection_tool_active:
+                    self.update_temp_selection()
+                    width = abs(self.end_point[0] - self.start_point[0])
+                    height = abs(self.end_point[1] - self.start_point[1])
+                    self.put_select_size(width, height)
+
+            elif event.type() == QEvent.MouseButtonRelease:
+                if event.button() == Qt.LeftButton and self.is_selection_tool_active:
+                    self.drawing = False
+                    self.end_point = self.scale_coordinates(event.x(), event.y())
+                    self.apply_selection()
+
+                    width = abs(self.end_point[0] - self.start_point[0])
+                    height = abs(self.end_point[1] - self.start_point[1])
+                    self.put_select_size(width, height)
+
         return super().eventFilter(obj, event)
 
+    def update_temp_selection(self):
+        if self.start_point and self.end_point and self.original_pixmap:
+            pixmap = self.original_pixmap.copy()
+            painter = QPainter(pixmap)
+            painter.setPen(QPen(Qt.red, 2, Qt.DashLine))
+
+            start_point = QPoint(*self.start_point)
+            end_point = QPoint(*self.end_point)
+
+            if self.selection_type == ComboBoxSelect.RECTANGLE.value:
+                rect = QRect(start_point, end_point)
+                painter.drawRect(rect)
+            else:
+                # Для произвольной области можно использовать QPainterPath
+                pass
+
+            painter.end()
+            self.ui.lbl_paint.setPixmap(pixmap)
+
+    def apply_selection(self):
+        if self.start_point and self.end_point:
+            pixmap = self.ui.lbl_paint.pixmap()
+            if pixmap:
+                start_point = QPoint(*self.start_point)
+                end_point = QPoint(*self.end_point)
+
+                width = abs(end_point.x() - start_point.x())
+                height = abs(end_point.y() - start_point.y())
+                # self.put_select_size(width, height)
+
+                print(f"Выделенная область: {width}x{height}")
+
+    def clear_selection(self):
+        self.start_point = None
+        self.end_point = None
+        self.selection_mask = None
+        if self.original_pixmap:
+            self.ui.lbl_paint.setPixmap(self.original_pixmap)
 
     def open_image(self):
         options = QFileDialog.Options()
@@ -131,14 +205,12 @@ class MainWindow(QMainWindow):
         if file_name:
             self.signal_open_image.emit(file_name)
 
-
     def save_image(self):
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getSaveFileName(self, "Сохранить изображение", "",
                                                    "Images (*.png *.jpg *.bmp);;All Files (*)", options=options)
         if file_name:
             self.signal_save_image.emit(file_name)
-
 
     @pyqtSlot(np.ndarray)
     def put_image(self, image: np.ndarray):
@@ -149,36 +221,29 @@ class MainWindow(QMainWindow):
         self.ui.lbl_paint.setPixmap(pixmap)
         self.ui.lbl_paint.setScaledContents(True)
 
-
     def put_holst_size(self, width, height):
         self.ui.lbl_size.setText(f"{width}x{height} пкс")
-
 
     def put_select_size(self, width, height):
         self.ui.lbl_select.setText(f"{width}x{height} пкс")
 
-
     def put_position_mouse(self, x, y):
         self.ui.lbl_pos.setText(f"x: {x}, y: {y}")
-
 
     @pyqtSlot(int, int, int)
     def put_rgb_in_point(self, red, green, blue):
         self.ui.lbl_rgb.setText(f"R: {red}, G: {green}, B: {blue}")
-
 
     def get_scaled_image_size(self):
         scaled_width = self.ui.lbl_paint.width()
         scaled_height = self.ui.lbl_paint.height()
         return scaled_width, scaled_height
 
-
     def get_original_image_size(self):
         pixmap = self.ui.lbl_paint.pixmap()
         if pixmap:
             return pixmap.width(), pixmap.height()
         return None, None
-
 
     def scale_coordinates(self, x, y):
         original_width, original_height = self.get_original_image_size()
@@ -195,10 +260,11 @@ class MainWindow(QMainWindow):
 
         return original_x, original_y
 
-
     def put_lbl_scale(self, value):
         self.ui.lbl_scale.setText(str(value) + '%')
 
     def slider_changed(self):
         val_slider = self.ui.slider.value()
+        scale_factor = val_slider / 100.0
+        print('scale_factor:', scale_factor)
         self.put_lbl_scale(val_slider)

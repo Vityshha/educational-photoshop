@@ -41,7 +41,8 @@ class MainController(QObject):
 
     def save_image(self, file_name: str):
         image = self.image_model.get_current_image()
-        Utils.save_image(file_name, image)
+        if image is not None:
+            Utils.save_image(file_name, image)
 
 
     def get_image_rgb(self, x, y):
