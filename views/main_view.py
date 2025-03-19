@@ -13,11 +13,11 @@ class MainWindow(QMainWindow):
     signal_save_image = pyqtSignal(str)
     signal_undo_image = pyqtSignal()
     signal_redo_image = pyqtSignal()
+    signal_coordinates = pyqtSignal(int, int)
 
-    def __init__(self, image_model, history_model):
+    def __init__(self, image_model):
         super().__init__()
         self.image_model = image_model
-        self.history_model = history_model
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.init_ui()
@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         self.init_combo_box()
         self.ui.lbl_paint.installEventFilter(self)
+        self.ui.lbl_paint.setMouseTracking(True)
 
 
     def init_connections(self):
@@ -87,6 +88,14 @@ class MainWindow(QMainWindow):
         if obj == self.ui.lbl_paint and event.type() == QEvent.Resize:
             new_size = self.ui.lbl_paint.size()
             self.put_holst_size(new_size.width(), new_size.height())
+
+        if obj == self.ui.lbl_paint:
+            if event.type() == QEvent.MouseMove:
+                x = event.x()
+                y = event.y()
+                original_x, original_y = self.scale_coordinates(x, y)
+                self.put_position_mouse(original_x, original_y)
+                self.signal_coordinates.emit(original_x, original_y)
         return super().eventFilter(obj, event)
 
 
@@ -122,3 +131,38 @@ class MainWindow(QMainWindow):
 
     def put_select_size(self, width, height):
         self.ui.lbl_select.setText(f"{width}x{height} пкс")
+
+
+    def put_position_mouse(self, x, y):
+        self.ui.lbl_pos.setText(f"x: {x}, y: {y}")
+
+
+    @pyqtSlot(int, int, int)
+    def put_rgb_in_point(self, red, green, blue):
+        self.ui.lbl_rgb.setText(f"R: {red}, G: {green}, B: {blue}")
+
+    def get_scaled_image_size(self):
+        scaled_width = self.ui.lbl_paint.width()
+        scaled_height = self.ui.lbl_paint.height()
+        return scaled_width, scaled_height
+
+    def get_original_image_size(self):
+        pixmap = self.ui.lbl_paint.pixmap()
+        if pixmap:
+            return pixmap.width(), pixmap.height()
+        return None, None
+
+    def scale_coordinates(self, x, y):
+        original_width, original_height = self.get_original_image_size()
+        scaled_width, scaled_height = self.get_scaled_image_size()
+
+        if original_width is None or original_height is None:
+            return x, y
+
+        scale_x = original_width / scaled_width
+        scale_y = original_height / scaled_height
+
+        original_x = int(x * scale_x)
+        original_y = int(y * scale_y)
+
+        return original_x, original_y
