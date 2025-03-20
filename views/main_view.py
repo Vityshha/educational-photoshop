@@ -6,6 +6,7 @@ from PyQt5.QtCore import pyqtSlot, pyqtSignal, QEvent, Qt, QRect, QPoint
 import numpy as np
 
 from views.custom_combo_box import FileComboBox, SelectComboBox
+from views.custom_dialog_window import ScaleMenu
 
 
 class MainWindow(QMainWindow):
@@ -37,6 +38,7 @@ class MainWindow(QMainWindow):
 
     def init_ui(self):
         self.init_combo_box()
+        self.init_dialog_window()
         self.ui.lbl_paint.installEventFilter(self)
         self.ui.lbl_paint.setMouseTracking(True)
         self.ui.stackedWidget.setCurrentIndex(StackedWidget.MAIN.value)
@@ -49,6 +51,7 @@ class MainWindow(QMainWindow):
         self.ui.btn_undo.clicked.connect(self.switch_image)
         self.ui.slider.valueChanged.connect(self.slider_changed)
         self.ui.btn_select_frame.clicked.connect(self.select_mode)
+        self.ui.btn_resize.clicked.connect(self.resize_image)
 
         self.file_combo_box.activated.connect(self.on_combo_box_changed)
         self.select_combo_box.activated.connect(self.on_combo_box_select_change)
@@ -61,6 +64,10 @@ class MainWindow(QMainWindow):
 
         self.select_combo_box = SelectComboBox(self.ui.lbl_select_frame.geometry(), self.ui.frame_8.geometry(), self)
         self.ui.lbl_select_frame.mousePressEvent = self.show_combo_box_select
+
+
+    def init_dialog_window(self):
+        self.dialog_resize = ScaleMenu()
 
 
     def show_combo_box(self, event):
@@ -308,3 +315,11 @@ class MainWindow(QMainWindow):
         scale_factor = val_slider / 100.0
         print('scale_factor:', scale_factor)
         self.put_lbl_scale(val_slider)
+
+
+    def resize_image(self):
+        if self.ui.btn_resize.isChecked():
+            self.ui.frame_9.setStyleSheet(SelectMode.SELECT.value)
+            self.dialog_resize.show()
+        else:
+            self.ui.frame_9.setStyleSheet(SelectMode.UNSELECT.value)

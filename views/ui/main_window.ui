@@ -341,7 +341,7 @@ background-color: transparent;
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_4">
                  <item alignment="Qt::AlignHCenter">
-                  <widget class="QPushButton" name="pushButton">
+                  <widget class="QPushButton" name="btn_resize">
                    <property name="styleSheet">
                     <string notr="true">image: url(:/newPrefix/images/picture_in_picture.png);
 background-color: transparent;

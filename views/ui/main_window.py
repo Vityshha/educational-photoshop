@@ -176,14 +176,14 @@ class Ui_MainWindow(object):
         self.frame_9.setObjectName("frame_9")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.frame_9)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.pushButton = QtWidgets.QPushButton(self.frame_9)
-        self.pushButton.setStyleSheet("image: url(:/newPrefix/images/picture_in_picture.png);\n"
+        self.btn_resize = QtWidgets.QPushButton(self.frame_9)
+        self.btn_resize.setStyleSheet("image: url(:/newPrefix/images/picture_in_picture.png);\n"
 "background-color: transparent;\n"
 "")
-        self.pushButton.setText("")
-        self.pushButton.setCheckable(True)
-        self.pushButton.setObjectName("pushButton")
-        self.verticalLayout_4.addWidget(self.pushButton, 0, QtCore.Qt.AlignHCenter)
+        self.btn_resize.setText("")
+        self.btn_resize.setCheckable(True)
+        self.btn_resize.setObjectName("btn_resize")
+        self.verticalLayout_4.addWidget(self.btn_resize, 0, QtCore.Qt.AlignHCenter)
         self.label_2 = QtWidgets.QLabel(self.frame_9)
         self.label_2.setObjectName("label_2")
         self.verticalLayout_4.addWidget(self.label_2, 0, QtCore.Qt.AlignHCenter)
