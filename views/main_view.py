@@ -1,5 +1,5 @@
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen, QPainterPath
-from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
 from views.ui.main_window import Ui_MainWindow
 from views.views_enums import ComboBoxItem, StackedWidget, ComboBoxSelect, SelectMode
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QEvent, Qt, QRect, QPoint
@@ -68,6 +68,7 @@ class MainWindow(QMainWindow):
 
     def init_dialog_window(self):
         self.dialog_resize = ScaleMenu()
+        self.dialog_resize.confirm_button.clicked.connect(self.apply_scaling)
 
 
     def show_combo_box(self, event):
@@ -323,3 +324,30 @@ class MainWindow(QMainWindow):
             self.dialog_resize.show()
         else:
             self.ui.frame_9.setStyleSheet(SelectMode.UNSELECT.value)
+            print('sdasdsada')
+
+
+
+    def apply_scaling(self):
+        method = self.dialog_resize.method_combo.currentIndex()
+
+        width = self.dialog_resize.width_input.text()
+        height = self.dialog_resize.height_input.text()
+
+        if not width or not height:
+            QMessageBox.warning(self, "Ошибка", "Пожалуйста, заполните все поля.")
+            return
+
+        try:
+            width = int(width)
+            height = int(height)
+        except ValueError:
+            QMessageBox.warning(self, "Ошибка", "Ширина и высота должны быть числами.")
+            return
+
+        self.dialog_resize.close()
+        self.ui.btn_resize.setChecked(False)
+        self.resize_image()
+
+        print('scale: ', method, width, height)
+        return method, width, height

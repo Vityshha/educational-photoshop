@@ -29,7 +29,7 @@ class ScaleMenu(QDialog):
         layout.addLayout(self.size_layout)
 
         self.confirm_button = QPushButton("Применить")
-        self.confirm_button.clicked.connect(self.apply_scaling)
+        # self.confirm_button.clicked.connect(self.apply_scaling)
         layout.addWidget(self.confirm_button)
 
         self.setLayout(layout)
