@@ -294,6 +294,9 @@ background-color: transparent;
                    <property name="text">
                     <string/>
                    </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
                   </widget>
                  </item>
                  <item alignment="Qt::AlignHCenter">
@@ -346,6 +349,9 @@ background-color: transparent;
                    </property>
                    <property name="text">
                     <string/>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>

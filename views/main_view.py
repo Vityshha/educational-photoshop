@@ -5,6 +5,8 @@ from views.views_enums import ComboBoxItem, StackedWidget, ComboBoxSelect
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QEvent, Qt, QRect, QPoint
 import numpy as np
 
+from views.custom_combo_box import FileComboBox, SelectComboBox
+
 
 class MainWindow(QMainWindow):
 
@@ -31,16 +33,13 @@ class MainWindow(QMainWindow):
         self.is_selection_tool_active = False  # Флаг активности инструмента выделения
         self.original_pixmap = None  # Сохраняем исходное изображение
 
+
     def init_ui(self):
         self.init_combo_box()
         self.ui.lbl_paint.installEventFilter(self)
         self.ui.lbl_paint.setMouseTracking(True)
         self.ui.stackedWidget.setCurrentIndex(StackedWidget.MAIN.value)
 
-        self.ui.slider.setMinimum(10)  # Минимальный масштаб 10%
-        self.ui.slider.setMaximum(200)  # Максимальный масштаб 200%
-        self.ui.slider.setValue(100)  # Начальное значение 100%
-        self.ui.scrollArea.setWidgetResizable(True)
 
     def init_connections(self):
         self.ui.btn_main.clicked.connect(self.switch_button_status)
@@ -48,34 +47,26 @@ class MainWindow(QMainWindow):
         self.ui.btn_redo.clicked.connect(self.switch_image)
         self.ui.btn_undo.clicked.connect(self.switch_image)
         self.ui.slider.valueChanged.connect(self.slider_changed)
+        self.ui.btn_select_frame.clicked.connect(self.select_mode)
+
 
     def init_combo_box(self):
-        self.combo_box = QComboBox(self)
-        self.combo_box.addItems(["Открыть", "Сохранить"])
-        self.combo_box.hide()
-        self.combo_box.setGeometry(self.ui.cb_file.geometry())
+        self.combo_box = FileComboBox(self.ui.cb_file.geometry(), self)
         self.ui.cb_file.mousePressEvent = self.show_combo_box
         self.combo_box.activated.connect(self.on_combo_box_changed)
 
-        self.combo_box_select = QComboBox(self)
-        self.combo_box_select.addItems(["Прямоугольная область", "Произвольная область"])
+        self.combo_box_select = SelectComboBox(self.ui.lbl_select_frame.geometry(), self.ui.frame_8.geometry(), self)
         self.ui.lbl_select_frame.mousePressEvent = self.show_combo_box_select
-        self.combo_box_select.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        lbl_select_frame_geometry = self.ui.lbl_select_frame.geometry()
-        self.combo_box_select.setGeometry(
-            lbl_select_frame_geometry.x(),
-            lbl_select_frame_geometry.y() + self.ui.frame_8.geometry().width(),
-            lbl_select_frame_geometry.width(),
-            self.combo_box_select.sizeHint().height()
-        )
-        self.combo_box_select.hide()
         self.combo_box_select.activated.connect(self.on_combo_box_select_change)
+
 
     def show_combo_box(self, event):
         self.combo_box.showPopup()
 
+
     def show_combo_box_select(self, event):
         self.combo_box_select.showPopup()
+
 
     def on_combo_box_changed(self, index):
         selected_index = self.combo_box.currentIndex()
@@ -85,6 +76,7 @@ class MainWindow(QMainWindow):
         elif selected_index == ComboBoxItem.SAVE.value:
             print('Отрпавить сигнал о сохранении изображения')
             self.save_image()
+
 
     def on_combo_box_select_change(self, index):
         selected_index = self.combo_box_select.currentIndex()
@@ -96,6 +88,14 @@ class MainWindow(QMainWindow):
             print('Произвольная область')
             self.selection_type = ComboBoxSelect.FREEHAND.value
             self.is_selection_tool_active = True
+
+
+    def select_mode(self):
+        if self.ui.btn_select_frame.isChecked():
+            self.ui.frame_8.setStyleSheet("background-color: rgb(201, 224, 247);")
+        else:
+            self.ui.frame_8.setStyleSheet('background-color: rgb(245, 246, 247);')
+
 
     def switch_button_status(self):
         sender = self.sender()
@@ -111,6 +111,7 @@ class MainWindow(QMainWindow):
         else:
             self.ui.stackedWidget.setCurrentIndex(StackedWidget.TOOLS.value)
 
+
     def switch_image(self):
         sender = self.sender()
         if sender == self.ui.btn_undo:
@@ -119,6 +120,7 @@ class MainWindow(QMainWindow):
         else:
             print('Переключаем на следующее состояние если есть')
             self.signal_redo_image.emit()
+
 
     def eventFilter(self, obj, event):
         if obj == self.ui.lbl_paint and event.type() == QEvent.Resize:
@@ -142,7 +144,7 @@ class MainWindow(QMainWindow):
 
             elif event.type() == QEvent.MouseMove:
                 self.end_point = self.scale_coordinates(event.x(), event.y())
-                self.signal_coordinates.emit(self.end_point[0], self.end_point[1])
+                self.signal_coordinates.emit(self.end_point[1], self.end_point[0])
                 if self.drawing and self.is_selection_tool_active:
                     self.update_temp_selection()
                     width = abs(self.end_point[0] - self.start_point[0])
@@ -169,6 +171,7 @@ class MainWindow(QMainWindow):
 
         return super().eventFilter(obj, event)
 
+
     def update_temp_selection(self):
         if self.start_point and self.end_point and self.original_pixmap:
             pixmap = self.original_pixmap.copy()
@@ -192,6 +195,7 @@ class MainWindow(QMainWindow):
             painter.end()
             self.ui.lbl_paint.setPixmap(pixmap)
 
+
     def apply_selection(self):
         if self.start_point and self.end_point:
             pixmap = self.ui.lbl_paint.pixmap()
@@ -205,12 +209,14 @@ class MainWindow(QMainWindow):
 
                 print(f"Выделенная область: {width}x{height}")
 
+
     def clear_selection(self):
         self.start_point = None
         self.end_point = None
         self.selection_mask = None
         if self.original_pixmap:
             self.ui.lbl_paint.setPixmap(self.original_pixmap)
+
 
     def open_image(self):
         options = QFileDialog.Options()
@@ -219,12 +225,14 @@ class MainWindow(QMainWindow):
         if file_name:
             self.signal_open_image.emit(file_name)
 
+
     def save_image(self):
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getSaveFileName(self, "Сохранить изображение", "",
                                                    "Images (*.png *.jpg *.bmp);;All Files (*)", options=options)
         if file_name:
             self.signal_save_image.emit(file_name)
+
 
     @pyqtSlot(np.ndarray)
     def put_image(self, image: np.ndarray):
@@ -235,29 +243,36 @@ class MainWindow(QMainWindow):
         self.ui.lbl_paint.setPixmap(pixmap)
         self.ui.lbl_paint.setScaledContents(True)
 
+
     def put_holst_size(self, width, height):
         self.ui.lbl_size.setText(f"{width}x{height} пкс")
+
 
     def put_select_size(self, width, height):
         self.ui.lbl_select.setText(f"{width}x{height} пкс")
 
+
     def put_position_mouse(self, x, y):
         self.ui.lbl_pos.setText(f"x: {x}, y: {y}")
+
 
     @pyqtSlot(int, int, int)
     def put_rgb_in_point(self, red, green, blue):
         self.ui.lbl_rgb.setText(f"R: {red}, G: {green}, B: {blue}")
+
 
     def get_scaled_image_size(self):
         scaled_width = self.ui.lbl_paint.width()
         scaled_height = self.ui.lbl_paint.height()
         return scaled_width, scaled_height
 
+
     def get_original_image_size(self):
         pixmap = self.ui.lbl_paint.pixmap()
         if pixmap:
             return pixmap.width(), pixmap.height()
         return None, None
+
 
     def scale_coordinates(self, x, y):
         original_width, original_height = self.get_original_image_size()
@@ -274,8 +289,10 @@ class MainWindow(QMainWindow):
 
         return original_x, original_y
 
+
     def put_lbl_scale(self, value):
         self.ui.lbl_scale.setText(str(value) + '%')
+
 
     def slider_changed(self):
         val_slider = self.ui.slider.value()

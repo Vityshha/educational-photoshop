@@ -147,6 +147,7 @@ class Ui_MainWindow(object):
 "background-color: transparent;\n"
 "")
         self.btn_select_frame.setText("")
+        self.btn_select_frame.setCheckable(True)
         self.btn_select_frame.setObjectName("btn_select_frame")
         self.verticalLayout_3.addWidget(self.btn_select_frame, 0, QtCore.Qt.AlignHCenter)
         self.lbl_select_frame = QtWidgets.QLabel(self.frame_8)
@@ -180,6 +181,7 @@ class Ui_MainWindow(object):
 "background-color: transparent;\n"
 "")
         self.pushButton.setText("")
+        self.pushButton.setCheckable(True)
         self.pushButton.setObjectName("pushButton")
         self.verticalLayout_4.addWidget(self.pushButton, 0, QtCore.Qt.AlignHCenter)
         self.label_2 = QtWidgets.QLabel(self.frame_9)
