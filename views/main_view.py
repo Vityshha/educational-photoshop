@@ -1,7 +1,7 @@
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen, QPainterPath
-from PyQt5.QtWidgets import QMainWindow, QComboBox, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from views.ui.main_window import Ui_MainWindow
-from views.views_enums import ComboBoxItem, StackedWidget, ComboBoxSelect
+from views.views_enums import ComboBoxItem, StackedWidget, ComboBoxSelect, SelectMode
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QEvent, Qt, QRect, QPoint
 import numpy as np
 
@@ -21,6 +21,7 @@ class MainWindow(QMainWindow):
         self.image_model = image_model
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
         self.init_ui()
         self.init_connections()
 
@@ -49,27 +50,29 @@ class MainWindow(QMainWindow):
         self.ui.slider.valueChanged.connect(self.slider_changed)
         self.ui.btn_select_frame.clicked.connect(self.select_mode)
 
+        self.file_combo_box.activated.connect(self.on_combo_box_changed)
+        self.select_combo_box.activated.connect(self.on_combo_box_select_change)
+
+
 
     def init_combo_box(self):
-        self.combo_box = FileComboBox(self.ui.cb_file.geometry(), self)
+        self.file_combo_box = FileComboBox(self.ui.cb_file.geometry(), self)
         self.ui.cb_file.mousePressEvent = self.show_combo_box
-        self.combo_box.activated.connect(self.on_combo_box_changed)
 
-        self.combo_box_select = SelectComboBox(self.ui.lbl_select_frame.geometry(), self.ui.frame_8.geometry(), self)
+        self.select_combo_box = SelectComboBox(self.ui.lbl_select_frame.geometry(), self.ui.frame_8.geometry(), self)
         self.ui.lbl_select_frame.mousePressEvent = self.show_combo_box_select
-        self.combo_box_select.activated.connect(self.on_combo_box_select_change)
 
 
     def show_combo_box(self, event):
-        self.combo_box.showPopup()
+        self.file_combo_box.showPopup()
 
 
     def show_combo_box_select(self, event):
-        self.combo_box_select.showPopup()
+        self.select_combo_box.showPopup()
 
 
     def on_combo_box_changed(self, index):
-        selected_index = self.combo_box.currentIndex()
+        selected_index = self.file_combo_box.currentIndex()
         if selected_index == ComboBoxItem.OPEN.value:
             print('Отправить сигнал об отрытии изображения')
             self.open_image()
@@ -79,7 +82,8 @@ class MainWindow(QMainWindow):
 
 
     def on_combo_box_select_change(self, index):
-        selected_index = self.combo_box_select.currentIndex()
+        selected_index = self.select_combo_box.currentIndex()
+        self.ui.btn_select_frame.click()
         if selected_index == ComboBoxSelect.RECTANGLE.value:
             print('Прямоугольная область')
             self.selection_type = ComboBoxSelect.RECTANGLE.value
@@ -92,9 +96,13 @@ class MainWindow(QMainWindow):
 
     def select_mode(self):
         if self.ui.btn_select_frame.isChecked():
-            self.ui.frame_8.setStyleSheet("background-color: rgb(201, 224, 247);")
+            self.ui.frame_8.setStyleSheet(SelectMode.SELECT.value)
+            self.is_selection_tool_active = True
+            self.selection_type = ComboBoxSelect.RECTANGLE.value
         else:
-            self.ui.frame_8.setStyleSheet('background-color: rgb(245, 246, 247);')
+            self.ui.frame_8.setStyleSheet(SelectMode.UNSELECT.value)
+            self.is_selection_tool_active = False
+            self.clear_selection()
 
 
     def switch_button_status(self):
@@ -145,6 +153,7 @@ class MainWindow(QMainWindow):
             elif event.type() == QEvent.MouseMove:
                 self.end_point = self.scale_coordinates(event.x(), event.y())
                 self.signal_coordinates.emit(self.end_point[1], self.end_point[0])
+                self.put_position_mouse(self.end_point[0], self.end_point[1])
                 if self.drawing and self.is_selection_tool_active:
                     self.update_temp_selection()
                     width = abs(self.end_point[0] - self.start_point[0])
