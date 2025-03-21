@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (
-    QDialog, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QHBoxLayout, QMessageBox
+    QDialog, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QHBoxLayout, QMessageBox, QDoubleSpinBox
 )
 
 
@@ -18,18 +18,15 @@ class ScaleMenu(QDialog):
         layout.addWidget(self.method_combo)
 
         self.size_layout = QHBoxLayout()
-        self.width_label = QLabel("Ширина:")
-        self.width_input = QLineEdit()
-        self.height_label = QLabel("Высота:")
-        self.height_input = QLineEdit()
-        self.size_layout.addWidget(self.width_label)
-        self.size_layout.addWidget(self.width_input)
-        self.size_layout.addWidget(self.height_label)
-        self.size_layout.addWidget(self.height_input)
+        self.ratio = QLabel("Коэффициент:")
+        self.ratio_input = QDoubleSpinBox()
+        self.ratio_input.setRange(0.0, 10)
+        self.ratio_input.setSingleStep(0.1)
+        self.size_layout.addWidget(self.ratio)
+        self.size_layout.addWidget(self.ratio_input)
         layout.addLayout(self.size_layout)
 
         self.confirm_button = QPushButton("Применить")
-        # self.confirm_button.clicked.connect(self.apply_scaling)
         layout.addWidget(self.confirm_button)
 
         self.setLayout(layout)
@@ -37,21 +34,13 @@ class ScaleMenu(QDialog):
     def apply_scaling(self):
         method = self.method_combo.currentIndex()
 
-        width = self.width_input.text()
-        height = self.height_input.text()
+        ratio = self.ratio_input.value()
 
-        if not width or not height:
+        if not ratio:
             QMessageBox.warning(self, "Ошибка", "Пожалуйста, заполните все поля.")
             return
 
-        try:
-            width = int(width)
-            height = int(height)
-        except ValueError:
-            QMessageBox.warning(self, "Ошибка", "Ширина и высота должны быть числами.")
-            return
-
         self.close()
-        print('scale: ', method, width, height)
-        return method, width, height
+        print('scale: ', method, ratio)
+        return method, ratio
 

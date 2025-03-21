@@ -330,23 +330,15 @@ class MainWindow(QMainWindow):
     def apply_scaling(self):
         method = self.dialog_resize.method_combo.currentIndex()
 
-        width = self.dialog_resize.width_input.text()
-        height = self.dialog_resize.height_input.text()
+        ratio = self.dialog_resize.ratio_input.value()
 
-        if not width or not height:
+        if not ratio:
             QMessageBox.warning(self, "Ошибка", "Пожалуйста, заполните все поля.")
-            return
-
-        try:
-            width = int(width)
-            height = int(height)
-        except ValueError:
-            QMessageBox.warning(self, "Ошибка", "Ширина и высота должны быть числами.")
             return
 
         self.dialog_resize.close()
         self.ui.btn_resize.setChecked(False)
         self.resize_image()
 
-        print('scale: ', method, width, height)
-        return method, width, height
+        print('scale: ', method, ratio)
+        return method, ratio
