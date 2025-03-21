@@ -373,6 +373,27 @@ background-color: transparent;
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
+                <layout class="QVBoxLayout" name="verticalLayout_6">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_grayscale">
+                   <property name="styleSheet">
+                    <string notr="true">image: url(:/newPrefix/images/contrast.png);
+background-color: transparent;
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label">
+                   <property name="text">
+                    <string>Grayscale</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </item>
               <item>

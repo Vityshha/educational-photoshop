@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
     signal_redo_image = pyqtSignal()
     signal_coordinates = pyqtSignal(int, int)
     signal_scale_image = pyqtSignal(int, float)
+    signal_grayscale_image = pyqtSignal()
 
     def __init__(self, image_model):
         super().__init__()
@@ -54,6 +55,7 @@ class MainWindow(QMainWindow):
         self.ui.slider.valueChanged.connect(self.slider_changed)
         self.ui.btn_select_frame.clicked.connect(self.select_mode)
         self.ui.btn_resize.clicked.connect(self.resize_image)
+        self.ui.btn_grayscale.clicked.connect(self.grayscale_image)
 
         self.file_combo_box.activated.connect(self.on_combo_box_changed)
         self.select_combo_box.activated.connect(self.on_combo_box_select_change)
@@ -371,3 +373,7 @@ class MainWindow(QMainWindow):
         self.resize_image()
 
         self.signal_scale_image.emit(method, ratio)
+
+
+    def grayscale_image(self):
+        self.signal_grayscale_image.emit()
