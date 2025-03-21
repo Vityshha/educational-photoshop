@@ -91,7 +91,8 @@ class MainWindow(QMainWindow):
 
     def on_combo_box_select_change(self, index):
         selected_index = self.select_combo_box.currentIndex()
-        self.ui.btn_select_frame.click()
+        if not self.ui.btn_select_frame.isChecked():
+            self.ui.btn_select_frame.click()
         if selected_index == ComboBoxSelect.RECTANGLE.value:
             print('Прямоугольная область')
             self.selection_type = ComboBoxSelect.RECTANGLE.value
@@ -324,8 +325,6 @@ class MainWindow(QMainWindow):
             self.dialog_resize.show()
         else:
             self.ui.frame_9.setStyleSheet(SelectMode.UNSELECT.value)
-            print('sdasdsada')
-
 
 
     def apply_scaling(self):
