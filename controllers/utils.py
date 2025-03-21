@@ -76,13 +76,11 @@ class Utils:
         :param scale_factor: Коэффициент масштабирования.
         :return: Масштабированное изображение.
         """
-        if scale_factor <= 0:
-            raise ValueError("Коэффициент масштабирования должен быть положительным.")
+        if scale_factor <= 0 or scale_factor >= 1:
+            raise ValueError("Коэффициент масштабирования должен быть в диапазоне (0, 1) для уменьшения изображения.")
 
-        new_width = int(image.shape[1] * scale_factor)
-        new_height = int(image.shape[0] * scale_factor)
-
-        scaled_image = image[::int(1 / scale_factor), ::int(1 / scale_factor)]
+        step = int(1 / scale_factor)
+        scaled_image = image[::step, ::step]
         return scaled_image
 
     @staticmethod

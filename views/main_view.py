@@ -6,6 +6,7 @@ from PyQt5.QtCore import pyqtSlot, pyqtSignal, QEvent, Qt, QRect, QPoint
 import numpy as np
 
 from views.custom_combo_box import FileComboBox, SelectComboBox
+from views.views_enums import ScaleMode
 from views.custom_dialog_window import ScaleMenu
 
 
@@ -16,6 +17,7 @@ class MainWindow(QMainWindow):
     signal_undo_image = pyqtSignal()
     signal_redo_image = pyqtSignal()
     signal_coordinates = pyqtSignal(int, int)
+    signal_scale_image = pyqtSignal(int, float)
 
     def __init__(self, image_model):
         super().__init__()
@@ -254,12 +256,36 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot(np.ndarray)
     def put_image(self, image: np.ndarray):
-        height, width, channel = image.shape
-        bytes_per_line = 3 * width
-        q_img = QImage(image.data, width, height, bytes_per_line, QImage.Format_RGB888)
+        if image is None or image.size == 0:
+            print("Изображение пустое или не загружено.")
+            return
+
+        # Преобразуем изображение в тип uint8, если это еще не сделано
+        if image.dtype != np.uint8:
+            image = image.astype(np.uint8)
+
+        if len(image.shape) == 2:  # Grayscale
+            height, width = image.shape
+            bytes_per_line = width
+            q_img = QImage(image.data, width, height, bytes_per_line, QImage.Format_Grayscale8)
+        elif len(image.shape) == 3:  # Многоканальное изображение (RGB, RGBA)
+            height, width, channel = image.shape
+            if channel == 3:  # RGB
+                bytes_per_line = 3 * width
+                q_img = QImage(image.tobytes(), width, height, bytes_per_line, QImage.Format_RGB888)
+            elif channel == 4:  # RGBA
+                bytes_per_line = 4 * width
+                q_img = QImage(image.tobytes(), width, height, bytes_per_line, QImage.Format_RGBA8888)
+            else:
+                print(f"Неподдерживаемое количество каналов: {channel}")
+                return
+        else:
+            print(f"Неподдерживаемая форма изображения: {image.shape}")
+            return
+
         pixmap = QPixmap.fromImage(q_img)
         self.ui.lbl_paint.setPixmap(pixmap)
-        self.ui.lbl_paint.setScaledContents(True)
+        self.ui.lbl_paint.setScaledContents(False)
 
 
     def put_holst_size(self, width, height):
@@ -336,9 +362,12 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Ошибка", "Пожалуйста, заполните все поля.")
             return
 
+        if method == ScaleMode.BYSELECTION.value and ratio > 1:
+            QMessageBox.warning(self, "Ошибка", "Коэффициент масштабирования должен быть в диапазоне (0, 1) для уменьшения изображения.")
+            return
+
         self.dialog_resize.close()
         self.ui.btn_resize.setChecked(False)
         self.resize_image()
 
-        print('scale: ', method, ratio)
-        return method, ratio
+        self.signal_scale_image.emit(method, ratio)

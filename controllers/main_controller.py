@@ -1,6 +1,7 @@
 import numpy as np
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject
 
+from views.views_enums import ScaleMode
 from views.main_view import MainWindow
 from models.image_model import ImageModel
 from controllers.utils import Utils
@@ -25,6 +26,7 @@ class MainController(QObject):
         self.view.signal_undo_image.connect(self.image_model.get_undo_image)
         self.view.signal_redo_image.connect(self.image_model.get_redo_image)
         self.view.signal_coordinates.connect(self.get_image_rgb)
+        self.view.signal_scale_image.connect(self.scale_image)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -52,3 +54,14 @@ class MainController(QObject):
                 r, g, b = Utils.get_rgb(image, x, y)
                 self.signal_send_rgb.emit(r, g, b)
             # except: pass
+
+    def scale_image(self, metod, ratio):
+        print('scaling image: ', metod, ratio)
+        image = self.image_model.get_current_image()
+        scaled_image = image.copy()
+        if metod == ScaleMode.BYSELECTION.value:
+            scaled_image = Utils.scale_image_subsampling(image, ratio)
+        else:
+            scaled_image = Utils.scale_image_interpolation(image, ratio)
+
+        self.signal_send_image.emit(scaled_image)
