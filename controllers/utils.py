@@ -102,3 +102,49 @@ class Utils:
 
         scaled_image = cv2.resize(image, (new_width, new_height), interpolation=interpolation_method)
         return scaled_image
+
+    @staticmethod
+    def contrast_stretching(image: np.ndarray) -> np.ndarray:
+        """
+        Применяет контрастирование (растяжение динамического диапазона) к изображению.
+
+        :param image: Входное изображение.
+        :return: Изображение с увеличенным контрастом.
+        """
+        if image.ndim == 3:
+            channels = cv2.split(image)
+            stretched_channels = []
+            for channel in channels:
+                min_val = np.min(channel)
+                max_val = np.max(channel)
+                stretched_channel = (channel - min_val) * (255 / (max_val - min_val))
+                stretched_channel = np.clip(stretched_channel, 0, 255).astype(np.uint8)
+                stretched_channels.append(stretched_channel)
+            return cv2.merge(stretched_channels)
+        else:
+            min_val = np.min(image)
+            max_val = np.max(image)
+            stretched_image = (image - min_val) * (255 / (max_val - min_val))
+            return np.clip(stretched_image, 0, 255).astype(np.uint8)
+
+    @staticmethod
+    def quantization(image: np.ndarray, levels: int) -> np.ndarray:
+        """
+        Применяет квантование к изображению, уменьшая количество уровней яркости.
+
+        :param image: Входное изображение.
+        :param levels: Количество уровней яркости (например, 2 для черно-белого).
+        :return: Квантованное изображение.
+        """
+        if levels < 2 or levels > 256:
+            raise ValueError("Количество уровней должно быть в диапазоне [2, 256].")
+
+        if image.ndim == 3:
+            channels = cv2.split(image)
+            quantized_channels = []
+            for channel in channels:
+                quantized_channel = np.floor_divide(channel, 256 // levels) * (256 // levels)
+                quantized_channels.append(quantized_channel)
+            return cv2.merge(quantized_channels)
+        else:
+            return np.floor_divide(image, 256 // levels) * (256 // levels)

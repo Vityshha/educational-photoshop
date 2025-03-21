@@ -31,15 +31,19 @@ class MainController(QObject):
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
-
     def connect_slot(self):
         self.signal_send_image.connect(self.image_model.image_set)
         self.signal_send_rgb.connect(self.view.put_rgb_in_point)
 
 
+#Methods
+#-----------------------------------------------------------------
+
+
     def image_sender(self, file_name: str):
         image = Utils.load_image(file_name)
-        self.signal_send_image.emit(image)
+        if image is not None:
+            self.signal_send_image.emit(image)
 
 
     def save_image(self, file_name: str):
@@ -51,10 +55,8 @@ class MainController(QObject):
     def get_image_rgb(self, x, y):
         image = self.image_model.get_current_image()
         if image is not None:
-            # try:
-                r, g, b = Utils.get_rgb(image, x, y)
-                self.signal_send_rgb.emit(r, g, b)
-            # except: pass
+            r, g, b = Utils.get_rgb(image, x, y)
+            self.signal_send_rgb.emit(r, g, b)
 
     def scale_image(self, metod, ratio):
         image = self.image_model.get_current_image()
@@ -71,3 +73,15 @@ class MainController(QObject):
         if image is not None:
             grayscale_image = Utils.convert_to_24bit_grayscale(image)
             self.signal_send_image.emit(grayscale_image)
+
+    def contrast_stretching_metod(self):
+        image = self.image_model.get_current_image()
+        if image is not None:
+            contrast_stretching_image = Utils.contrast_stretching(image)
+            self.signal_send_image.emit(contrast_stretching_image)
+
+    def quantization_metod(self, levels):
+        image = self.image_model.get_current_image()
+        if image is not None:
+            quantization_image = Utils.quantization(image, levels)
+            self.signal_send_image.emit(quantization_image)
