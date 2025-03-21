@@ -1,9 +1,13 @@
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QHBoxLayout, QMessageBox, QDoubleSpinBox
 )
 
 
 class ScaleMenu(QDialog):
+
+    finished = pyqtSignal()
+
     def __init__(self, parent=None):
         super(ScaleMenu, self).__init__(parent)
         self.setWindowTitle("Масштабирование изображения")
@@ -44,3 +48,6 @@ class ScaleMenu(QDialog):
         print('scale: ', method, ratio)
         return method, ratio
 
+    def closeEvent(self, event):
+        self.finished.emit()
+        super().closeEvent(event)

@@ -77,6 +77,12 @@ class MainWindow(QMainWindow):
     def init_dialog_window(self):
         self.dialog_resize = ScaleMenu()
         self.dialog_resize.confirm_button.clicked.connect(self.apply_scaling)
+        self.dialog_resize.finished.connect(self.close_dialog_resize)
+
+
+    def close_dialog_resize(self):
+        self.ui.frame_9.setStyleSheet(SelectMode.UNSELECT.value)
+        self.ui.btn_resize.setChecked(False)
 
     def create_white_pixmap(self, size):
         pixmap = QPixmap(size)
@@ -375,10 +381,6 @@ class MainWindow(QMainWindow):
         if method == ScaleMode.BYSELECTION.value and ratio > 1:
             QMessageBox.warning(self, "Ошибка", "Коэффициент масштабирования должен быть в диапазоне (0, 1) для уменьшения изображения.")
             return
-
-        self.dialog_resize.close()
-        self.ui.btn_resize.setChecked(False)
-        self.resize_image()
 
         self.signal_scale_image.emit(method, ratio)
 
