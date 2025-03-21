@@ -45,6 +45,10 @@ class MainWindow(QMainWindow):
         self.ui.lbl_paint.installEventFilter(self)
         self.ui.lbl_paint.setMouseTracking(True)
         self.ui.stackedWidget.setCurrentIndex(StackedWidget.MAIN.value)
+        self.ui.lbl_select.clear()
+
+        if self.ui.lbl_paint.pixmap() is None:
+            self.ui.lbl_paint.setPixmap(self.create_white_pixmap(self.ui.lbl_paint.size()))
 
 
     def init_connections(self):
@@ -74,6 +78,10 @@ class MainWindow(QMainWindow):
         self.dialog_resize = ScaleMenu()
         self.dialog_resize.confirm_button.clicked.connect(self.apply_scaling)
 
+    def create_white_pixmap(self, size):
+        pixmap = QPixmap(size)
+        pixmap.fill(Qt.white)
+        return pixmap
 
     def show_combo_box(self, event):
         self.file_combo_box.showPopup()
@@ -193,9 +201,12 @@ class MainWindow(QMainWindow):
 
         return super().eventFilter(obj, event)
 
-
     def update_temp_selection(self):
-        if self.start_point and self.end_point and self.original_pixmap:
+        if self.start_point and self.end_point:
+            # Если оригинальное изображение не загружено, создаем пустой QPixmap
+            if self.original_pixmap is None:
+                self.original_pixmap = self.create_white_pixmap(self.ui.lbl_paint.size())
+
             pixmap = self.original_pixmap.copy()
             painter = QPainter(pixmap)
             painter.setPen(QPen(Qt.red, 2, Qt.DashLine))
@@ -217,27 +228,25 @@ class MainWindow(QMainWindow):
             painter.end()
             self.ui.lbl_paint.setPixmap(pixmap)
 
-
     def apply_selection(self):
         if self.start_point and self.end_point:
-            pixmap = self.ui.lbl_paint.pixmap()
-            if pixmap:
-                start_point = QPoint(*self.start_point)
-                end_point = QPoint(*self.end_point)
+            start_point = QPoint(*self.start_point)
+            end_point = QPoint(*self.end_point)
 
-                width = abs(end_point.x() - start_point.x())
-                height = abs(end_point.y() - start_point.y())
-                # self.put_select_size(width, height)
+            width = abs(end_point.x() - start_point.x())
+            height = abs(end_point.y() - start_point.y())
 
-                print(f"Выделенная область: {width}x{height}")
-
+            print(f"Выделенная область: {width}x{height}")
 
     def clear_selection(self):
         self.start_point = None
         self.end_point = None
         self.selection_mask = None
+        self.ui.lbl_select.clear()
         if self.original_pixmap:
             self.ui.lbl_paint.setPixmap(self.original_pixmap)
+        else:
+            self.ui.lbl_paint.setPixmap(self.create_white_pixmap(self.ui.lbl_paint.size()))
 
 
     def open_image(self):
@@ -255,14 +264,12 @@ class MainWindow(QMainWindow):
         if file_name:
             self.signal_save_image.emit(file_name)
 
-
     @pyqtSlot(np.ndarray)
     def put_image(self, image: np.ndarray):
         if image is None or image.size == 0:
             print("Изображение пустое или не загружено.")
             return
 
-        # Преобразуем изображение в тип uint8, если это еще не сделано
         if image.dtype != np.uint8:
             image = image.astype(np.uint8)
 
@@ -288,6 +295,7 @@ class MainWindow(QMainWindow):
         pixmap = QPixmap.fromImage(q_img)
         self.ui.lbl_paint.setPixmap(pixmap)
         self.ui.lbl_paint.setScaledContents(False)
+        self.original_pixmap = pixmap  # Сохраняем оригинальное изображение
 
 
     def put_holst_size(self, width, height):
