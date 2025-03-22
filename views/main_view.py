@@ -50,6 +50,8 @@ class MainWindow(QMainWindow):
         if self.ui.lbl_paint.pixmap() is None:
             self.ui.lbl_paint.setPixmap(self.create_white_pixmap(self.ui.lbl_paint.size()))
 
+        self.selection_start_point, self.selection_end_point = None, None
+
 
     def init_connections(self):
         self.ui.btn_main.clicked.connect(self.switch_button_status)
@@ -174,6 +176,7 @@ class MainWindow(QMainWindow):
                     self.drawing = True
                     self.start_point = scaled_point
                     self.end_point = scaled_point
+                    self.selection_start_point = scaled_point
                     self.original_pixmap = self.ui.lbl_paint.pixmap().copy()
 
                     width = abs(self.end_point[0] - self.start_point[0])
@@ -182,12 +185,33 @@ class MainWindow(QMainWindow):
 
                     self.points = [self.start_point]
 
+                elif event.button() == Qt.RightButton:  # Обработка правой кнопки мыши
+                    scaled_point = self.scale_coordinates(event.x(), event.y())
+                    if scaled_point is not None and self.selection_start_point and self.selection_end_point:
+
+                        if self.selection_type == ComboBoxSelect.RECTANGLE.value:
+                            rect = QRect(QPoint(*self.selection_start_point),
+                                         QPoint(*self.selection_end_point)).normalized()
+                            if rect.contains(QPoint(*scaled_point)):
+                                print('YES')
+                            else:
+                                print('NO')
+
+                        elif self.selection_type == ComboBoxSelect.FREEHAND.value:
+                            path = QPainterPath()
+                            path.moveTo(QPoint(*self.points[0]))
+                            for point in self.points[1:]:
+                                path.lineTo(QPoint(*point))
+                            if path.contains(QPoint(*scaled_point)):
+                                print('YES')
+                            else:
+                                print('NO')
+
             elif event.type() == QEvent.MouseMove:
                 scaled_point = self.scale_coordinates(event.x(), event.y())
                 if scaled_point is not None:
                     self.end_point = scaled_point
                     self.signal_coordinates.emit(self.end_point[1], self.end_point[0])
-                    # Для внутренних операций используем координаты изображения
                     if self.drawing and self.is_selection_tool_active:
                         self.update_temp_selection()
                         width = abs(self.end_point[0] - self.start_point[0])
@@ -198,7 +222,6 @@ class MainWindow(QMainWindow):
                             self.points.append(self.end_point)
                 else:
                     self.end_point = None
-                    # Область вне изображения или если его нет
                     self.put_rgb_in_point('', '', '')
 
             elif event.type() == QEvent.MouseButtonRelease:
@@ -208,6 +231,7 @@ class MainWindow(QMainWindow):
                     if scaled_point is None:
                         return super().eventFilter(obj, event)
                     self.end_point = scaled_point
+                    self.selection_end_point = scaled_point
                     self.apply_selection()
 
                     width = abs(self.end_point[0] - self.start_point[0])
@@ -228,7 +252,7 @@ class MainWindow(QMainWindow):
 
             pixmap = self.original_pixmap.copy()
             painter = QPainter(pixmap)
-            painter.setPen(QPen(Qt.red, 2, Qt.DashLine))
+            painter.setPen(QPen(Qt.red, 3, Qt.DashLine))
 
             start_point = QPoint(*self.start_point)
             end_point = QPoint(*self.end_point)
@@ -236,6 +260,7 @@ class MainWindow(QMainWindow):
             if self.selection_type == ComboBoxSelect.RECTANGLE.value:
                 rect = QRect(start_point, end_point)
                 painter.drawRect(rect)
+                print(rect.width(), rect.height())
             else:
                 # Для произвольной области можно использовать QPainterPath
                 path = QPainterPath()
