@@ -35,8 +35,8 @@ class MainWindow(QMainWindow):
         self.end_point = None
         self.selection_mask = None
         self.temp_pixmap = None
-        self.is_selection_tool_active = False  # Флаг активности инструмента выделения
-        self.original_pixmap = None  # Сохраняем исходное изображение
+        self.is_selection_tool_active = False
+        self.original_pixmap = None
 
 
     def init_ui(self):
@@ -156,19 +156,24 @@ class MainWindow(QMainWindow):
             print('Переключаем на следующее состояние если есть')
             self.signal_redo_image.emit()
 
-
     def eventFilter(self, obj, event):
         if obj == self.ui.lbl_paint and event.type() == QEvent.Resize:
             new_size = self.ui.lbl_paint.size()
             self.put_holst_size(new_size.width(), new_size.height())
 
         if obj == self.ui.lbl_paint:
+            if event.type() == QEvent.MouseMove:
+                self.put_position_mouse(event.x(), event.y())
+
             if event.type() == QEvent.MouseButtonPress:
                 if event.button() == Qt.LeftButton and self.is_selection_tool_active:
+                    scaled_point = self.scale_coordinates(event.x(), event.y())
+                    if scaled_point is None:
+                        return super().eventFilter(obj, event)
                     self.clear_selection()
                     self.drawing = True
-                    self.start_point = self.scale_coordinates(event.x(), event.y())
-                    self.end_point = self.start_point
+                    self.start_point = scaled_point
+                    self.end_point = scaled_point
                     self.original_pixmap = self.ui.lbl_paint.pixmap().copy()
 
                     width = abs(self.end_point[0] - self.start_point[0])
@@ -178,22 +183,31 @@ class MainWindow(QMainWindow):
                     self.points = [self.start_point]
 
             elif event.type() == QEvent.MouseMove:
-                self.end_point = self.scale_coordinates(event.x(), event.y())
-                self.signal_coordinates.emit(self.end_point[1], self.end_point[0])
-                self.put_position_mouse(self.end_point[0], self.end_point[1])
-                if self.drawing and self.is_selection_tool_active:
-                    self.update_temp_selection()
-                    width = abs(self.end_point[0] - self.start_point[0])
-                    height = abs(self.end_point[1] - self.start_point[1])
-                    self.put_select_size(width, height)
+                scaled_point = self.scale_coordinates(event.x(), event.y())
+                if scaled_point is not None:
+                    self.end_point = scaled_point
+                    self.signal_coordinates.emit(self.end_point[1], self.end_point[0])
+                    # Для внутренних операций используем координаты изображения
+                    if self.drawing and self.is_selection_tool_active:
+                        self.update_temp_selection()
+                        width = abs(self.end_point[0] - self.start_point[0])
+                        height = abs(self.end_point[1] - self.start_point[1])
+                        self.put_select_size(width, height)
 
-                    if self.selection_type == ComboBoxSelect.FREEHAND.value:
-                        self.points.append(self.end_point)
+                        if self.selection_type == ComboBoxSelect.FREEHAND.value:
+                            self.points.append(self.end_point)
+                else:
+                    self.end_point = None
+                    # Область вне изображения или если его нет
+                    self.put_rgb_in_point('', '', '')
 
             elif event.type() == QEvent.MouseButtonRelease:
                 if event.button() == Qt.LeftButton and self.is_selection_tool_active:
                     self.drawing = False
-                    self.end_point = self.scale_coordinates(event.x(), event.y())
+                    scaled_point = self.scale_coordinates(event.x(), event.y())
+                    if scaled_point is None:
+                        return super().eventFilter(obj, event)
+                    self.end_point = scaled_point
                     self.apply_selection()
 
                     width = abs(self.end_point[0] - self.start_point[0])
@@ -201,7 +215,6 @@ class MainWindow(QMainWindow):
                     self.put_select_size(width, height)
 
                     if self.selection_type == ComboBoxSelect.FREEHAND.value:
-                        # Замыкаем путь
                         self.points.append(self.points[0])
                         self.update_temp_selection()
 
@@ -301,7 +314,7 @@ class MainWindow(QMainWindow):
         pixmap = QPixmap.fromImage(q_img)
         self.ui.lbl_paint.setPixmap(pixmap)
         self.ui.lbl_paint.setScaledContents(False)
-        self.original_pixmap = pixmap  # Сохраняем оригинальное изображение
+        self.original_pixmap = pixmap
 
 
     def put_holst_size(self, width, height):
@@ -310,7 +323,6 @@ class MainWindow(QMainWindow):
 
     def put_select_size(self, width, height):
         self.ui.lbl_select.setText(f"{width}x{height} пкс")
-
 
     def put_position_mouse(self, x, y):
         self.ui.lbl_pos.setText(f"x: {x}, y: {y}")
@@ -333,21 +345,22 @@ class MainWindow(QMainWindow):
             return pixmap.width(), pixmap.height()
         return None, None
 
-
     def scale_coordinates(self, x, y):
-        original_width, original_height = self.get_original_image_size()
-        scaled_width, scaled_height = self.get_scaled_image_size()
+        pixmap = self.ui.lbl_paint.pixmap()
+        if not pixmap:
+            return None
 
-        if original_width is None or original_height is None:
-            return x, y
+        original_width = pixmap.width()
+        original_height = pixmap.height()
+        widget_width = self.ui.lbl_paint.width()
+        widget_height = self.ui.lbl_paint.height()
 
-        scale_x = original_width / scaled_width
-        scale_y = original_height / scaled_height
+        dx = (widget_width - original_width) // 2
+        dy = (widget_height - original_height) // 2
 
-        original_x = int(x * scale_x)
-        original_y = int(y * scale_y)
-
-        return original_x, original_y
+        if (dx <= x < dx + original_width) and (dy <= y < dy + original_height):
+            return (x - dx, y - dy)
+        return None
 
 
     def put_lbl_scale(self, value):
