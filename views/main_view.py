@@ -6,8 +6,10 @@ from PyQt5.QtCore import pyqtSlot, pyqtSignal, QEvent, Qt, QRect, QPoint
 import numpy as np
 
 from views.custom_combo_box import FileComboBox, SelectComboBox
-from views.views_enums import ScaleMode
 from views.custom_dialog_window import ScaleMenu
+from views.ui.calc_menu import CalcMenu
+
+from views.views_enums import ScaleMode, CalcMode
 
 
 class MainWindow(QMainWindow):
@@ -21,6 +23,7 @@ class MainWindow(QMainWindow):
     signal_grayscale_image = pyqtSignal()
     signal_quantized_image = pyqtSignal()
     signal_contrast_image = pyqtSignal()
+
 
     def __init__(self, image_model):
         super().__init__()
@@ -84,6 +87,12 @@ class MainWindow(QMainWindow):
         self.dialog_resize = ScaleMenu()
         self.dialog_resize.confirm_button.clicked.connect(self.apply_scaling)
         self.dialog_resize.finished.connect(self.close_dialog_resize)
+
+        self.calc_menu = CalcMenu()
+        self.calc_menu.min_max_button.clicked.connect(self.calc_statistics)
+        self.calc_menu.mean_std_button.clicked.connect(self.calc_statistics)
+        self.calc_menu.histogram_button.clicked.connect(self.calc_statistics)
+        self.calc_menu.smooth_button.clicked.connect(self.calc_statistics)
 
 
     def close_dialog_resize(self):
@@ -190,6 +199,8 @@ class MainWindow(QMainWindow):
                     self.points = [self.start_point]
 
                 elif event.button() == Qt.RightButton:
+                    self.calc_menu.show()
+                    self.calc_menu.switch_zone(False)
                     scaled_point = self.scale_coordinates(event.x(), event.y())
                     if scaled_point is not None and self.selection_start_point and self.selection_end_point:
 
@@ -197,9 +208,9 @@ class MainWindow(QMainWindow):
                             rect = QRect(QPoint(*self.selection_start_point),
                                          QPoint(*self.selection_end_point)).normalized()
                             if rect.contains(QPoint(*scaled_point)):
-                                print('YES')
+                                self.calc_menu.switch_zone(True)
                             else:
-                                print('NO')
+                                self.calc_menu.switch_zone(False)
 
                         elif self.selection_type == ComboBoxSelect.FREEHAND.value:
                             path = QPainterPath()
@@ -207,9 +218,9 @@ class MainWindow(QMainWindow):
                             for point in self.points[1:]:
                                 path.lineTo(QPoint(*point))
                             if path.contains(QPoint(*scaled_point)):
-                                print('YES')
+                                self.calc_menu.switch_zone(True)
                             else:
-                                print('NO')
+                                self.calc_menu.switch_zone(False)
 
             elif event.type() == QEvent.MouseMove:
                 scaled_point = self.scale_coordinates(event.x(), event.y())
@@ -236,7 +247,6 @@ class MainWindow(QMainWindow):
                         return super().eventFilter(obj, event)
                     self.end_point = scaled_point
                     self.selection_end_point = scaled_point
-                    self.apply_selection()
 
                     width = abs(self.end_point[0] - self.start_point[0])
                     height = abs(self.end_point[1] - self.start_point[1])
@@ -264,7 +274,6 @@ class MainWindow(QMainWindow):
             if self.selection_type == ComboBoxSelect.RECTANGLE.value:
                 rect = QRect(start_point, end_point)
                 painter.drawRect(rect)
-                print(rect.width(), rect.height())
             else:
                 # Для произвольной области можно использовать QPainterPath
                 path = QPainterPath()
@@ -276,15 +285,6 @@ class MainWindow(QMainWindow):
             painter.end()
             self.ui.lbl_paint.setPixmap(pixmap)
 
-    def apply_selection(self):
-        if self.start_point and self.end_point:
-            start_point = QPoint(*self.start_point)
-            end_point = QPoint(*self.end_point)
-
-            width = abs(end_point.x() - start_point.x())
-            height = abs(end_point.y() - start_point.y())
-
-            print(f"Выделенная область: {width}x{height}")
 
     def clear_selection(self):
         self.start_point = None
@@ -420,8 +420,25 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Ошибка", "Пожалуйста, заполните все поля.")
             return
 
-        if method == ScaleMode.BYSELECTION.value and ratio > 1:
+        if method == ScaleMode.BY_SELECTION.value and ratio > 1:
             QMessageBox.warning(self, "Ошибка", "Коэффициент масштабирования должен быть в диапазоне (0, 1) для уменьшения изображения.")
             return
 
         self.signal_scale_image.emit(method, ratio)
+
+
+    def calc_statistics(self):
+        sender = self.sender()
+        buttons = {
+            self.calc_menu.min_max_button: CalcMode.MIN_MAX_AMP.value,
+            self.calc_menu.mean_std_button: CalcMode.MEAN_STD.value,
+            self.calc_menu.histogram_button: CalcMode.HISTOGRAM.value,
+            self.calc_menu.smooth_button: CalcMode.SMOOTHING_AMP.value,
+        }
+
+        print(buttons[sender])
+
+        if self.calc_menu.is_selected_zone:
+            print('Для выбранной зоны')
+        else:
+            print('Для всей области')

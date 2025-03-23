@@ -11,7 +11,7 @@ class ScaleMenu(QDialog):
     def __init__(self, parent=None):
         super(ScaleMenu, self).__init__(parent)
         self.setWindowTitle("Масштабирование изображения")
-        self.setGeometry(300, 300, 300, 150)
+        self.setGeometry(300, 300, 300, 150) # todo выставить центр
 
         layout = QVBoxLayout()
 

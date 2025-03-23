@@ -63,7 +63,7 @@ class MainController(QObject):
     def scale_image(self, metod, ratio):
         image = self.image_model.get_current_image()
         if image is not None:
-            if metod == ScaleMode.BYSELECTION.value:
+            if metod == ScaleMode.BY_SELECTION.value:
                 scaled_image = Utils.scale_image_subsampling(image, ratio)
             else:
                 scaled_image = Utils.scale_image_interpolation(image, ratio)

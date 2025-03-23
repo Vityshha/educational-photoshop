@@ -22,5 +22,12 @@ class SelectMode(Enum):
 
 
 class ScaleMode(Enum):
-    BYSELECTION = 0
-    BYINTERPOLATION = 1
+    BY_SELECTION = 0
+    BY_INTERPOLATION = 1
+
+
+class CalcMode(Enum):
+    MIN_MAX_AMP = 0
+    MEAN_STD = 1
+    HISTOGRAM = 2
+    SMOOTHING_AMP = 3
