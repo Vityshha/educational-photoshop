@@ -227,12 +227,12 @@ class Ui_MainWindow(object):
         self.frame_12.setObjectName("frame_12")
         self.verticalLayout_8 = QtWidgets.QVBoxLayout(self.frame_12)
         self.verticalLayout_8.setObjectName("verticalLayout_8")
-        self.pushButton = QtWidgets.QPushButton(self.frame_12)
-        self.pushButton.setStyleSheet("background-color: transparent;\n"
+        self.btn_contrast = QtWidgets.QPushButton(self.frame_12)
+        self.btn_contrast.setStyleSheet("background-color: transparent;\n"
 "image: url(:/newPrefix/images/contrast_circle.png);")
-        self.pushButton.setText("")
-        self.pushButton.setObjectName("pushButton")
-        self.verticalLayout_8.addWidget(self.pushButton, 0, QtCore.Qt.AlignHCenter)
+        self.btn_contrast.setText("")
+        self.btn_contrast.setObjectName("btn_contrast")
+        self.verticalLayout_8.addWidget(self.btn_contrast, 0, QtCore.Qt.AlignHCenter)
         self.label_4 = QtWidgets.QLabel(self.frame_12)
         self.label_4.setObjectName("label_4")
         self.verticalLayout_8.addWidget(self.label_4, 0, QtCore.Qt.AlignHCenter)

@@ -436,7 +436,7 @@ image: url(:/newPrefix/images/align_vertical_bottom.png);</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_8">
                  <item alignment="Qt::AlignHCenter">
-                  <widget class="QPushButton" name="pushButton">
+                  <widget class="QPushButton" name="btn_contrast">
                    <property name="styleSheet">
                     <string notr="true">background-color: transparent;
 image: url(:/newPrefix/images/contrast_circle.png);</string>

@@ -28,6 +28,8 @@ class MainController(QObject):
         self.view.signal_coordinates.connect(self.get_image_rgb)
         self.view.signal_scale_image.connect(self.scale_image)
         self.view.signal_grayscale_image.connect(self.convert_grayscale)
+        self.view.signal_contrast_image.connect(self.contrast_stretching_metod)
+        self.view.signal_quantized_image.connect(self.quantization_metod)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
