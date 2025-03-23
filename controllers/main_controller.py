@@ -80,7 +80,7 @@ class MainController(QObject):
             contrast_stretching_image = Utils.contrast_stretching(image)
             self.signal_send_image.emit(contrast_stretching_image)
 
-    def quantization_metod(self, levels):
+    def quantization_metod(self, levels=2):
         image = self.image_model.get_current_image()
         if image is not None:
             quantization_image = Utils.quantization(image, levels)

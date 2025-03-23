@@ -185,7 +185,7 @@ class MainWindow(QMainWindow):
 
                     self.points = [self.start_point]
 
-                elif event.button() == Qt.RightButton:  # Обработка правой кнопки мыши
+                elif event.button() == Qt.RightButton:
                     scaled_point = self.scale_coordinates(event.x(), event.y())
                     if scaled_point is not None and self.selection_start_point and self.selection_end_point:
 

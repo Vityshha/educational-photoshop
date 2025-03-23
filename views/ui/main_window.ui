@@ -404,6 +404,56 @@ background-color: transparent;
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
+                <layout class="QVBoxLayout" name="verticalLayout_7">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_quant">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/align_vertical_bottom.png);</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_3">
+                   <property name="text">
+                    <string>Квантование</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="frame_12">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_8">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="pushButton">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/contrast_circle.png);</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_4">
+                   <property name="text">
+                    <string>Контрастирование</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </item>
               <item>

@@ -35,18 +35,6 @@ class ScaleMenu(QDialog):
 
         self.setLayout(layout)
 
-    def apply_scaling(self):
-        method = self.method_combo.currentIndex()
-
-        ratio = self.ratio_input.value()
-
-        if not ratio:
-            QMessageBox.warning(self, "Ошибка", "Пожалуйста, заполните все поля.")
-            return
-
-        self.close()
-        print('scale: ', method, ratio)
-        return method, ratio
 
     def closeEvent(self, event):
         self.finished.emit()

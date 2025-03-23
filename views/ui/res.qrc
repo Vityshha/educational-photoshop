@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="newPrefix">
+    <file>images/contrast_circle.png</file>
+    <file>images/align_vertical_bottom.png</file>
     <file>images/contrast.png</file>
     <file>images/picture_in_picture.png</file>
     <file>images/photo_size_select.png</file>
