@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>944</width>
+    <height>627</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -457,6 +457,36 @@ image: url(:/newPrefix/images/contrast_circle.png);</string>
                </widget>
               </item>
               <item>
+               <widget class="QFrame" name="frame_13">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_9">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_smoothing">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/cadence.png);</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_5">
+                   <property name="text">
+                    <string>Сглаживание</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
                <spacer name="horizontalSpacer_2">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -525,8 +555,8 @@ image: url(:/newPrefix/images/contrast_circle.png);</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>792</width>
-            <height>478</height>
+            <width>936</width>
+            <height>504</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">

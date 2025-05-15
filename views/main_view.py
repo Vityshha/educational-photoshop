@@ -8,7 +8,7 @@ import numpy as np
 
 from views.custom_combo_box import FileComboBox, SelectComboBox
 from views.custom_dialog_window import ScaleMenu
-from views.ui.calc_menu import CalcMenu
+from views.ui.menus import CalcMenu, SmoothingDialog
 
 from views.views_enums import ScaleMode, CalcMode
 from models.image_model import ImageModel
@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
     signal_contrast_image = pyqtSignal()
     signal_send_selected_zone = pyqtSignal(object)
     signal_calc_statistics = pyqtSignal(int, bool)
+    signal_smoothing_image = pyqtSignal(int)
 
     def __init__(self, image_model: ImageModel):
         super().__init__()
@@ -72,6 +73,7 @@ class MainWindow(QMainWindow):
         self.ui.btn_grayscale.clicked.connect(lambda: self.signal_grayscale_image.emit())
         self.ui.btn_contrast.clicked.connect(lambda: self.signal_contrast_image.emit())
         self.ui.btn_quant.clicked.connect(lambda: self.signal_quantized_image.emit())
+        self.ui.btn_smoothing.clicked.connect(lambda : self.smoothing_dialog.show())
 
         self.file_combo_box.activated.connect(self.on_combo_box_changed)
         self.select_combo_box.activated.connect(self.on_combo_box_select_change)
@@ -94,7 +96,8 @@ class MainWindow(QMainWindow):
         self.calc_menu.min_max_button.clicked.connect(self.calc_statistics)
         self.calc_menu.mean_std_button.clicked.connect(self.calc_statistics)
         self.calc_menu.histogram_button.clicked.connect(self.calc_statistics)
-        self.calc_menu.smooth_button.clicked.connect(self.calc_statistics)
+
+        self.smoothing_dialog = SmoothingDialog()
 
 
     def close_dialog_resize(self):
@@ -455,7 +458,6 @@ class MainWindow(QMainWindow):
             self.calc_menu.min_max_button: CalcMode.MIN_MAX_AMP.value,
             self.calc_menu.mean_std_button: CalcMode.MEAN_STD.value,
             self.calc_menu.histogram_button: CalcMode.HISTOGRAM.value,
-            self.calc_menu.smooth_button: CalcMode.SMOOTHING_AMP.value,
         }
 
         is_selected_zone = self.calc_menu.is_selected_zone

@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="newPrefix">
+    <file>images/cadence.png</file>
     <file>images/contrast_circle.png</file>
     <file>images/align_vertical_bottom.png</file>
     <file>images/contrast.png</file>

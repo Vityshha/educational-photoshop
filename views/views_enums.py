@@ -30,4 +30,3 @@ class CalcMode(Enum):
     MIN_MAX_AMP = 0
     MEAN_STD = 1
     HISTOGRAM = 2
-    SMOOTHING_AMP = 3

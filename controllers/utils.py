@@ -354,3 +354,97 @@ class Utils:
         else:
             hist = cv2.calcHist([image], [0], mask, [hist_size], hist_range)
             return hist.flatten()
+
+
+    @staticmethod
+    def smooth_roi(image: np.ndarray, roi_image: np.ndarray, radius: int) -> np.ndarray:
+        """
+        Сглаживает значения пикселей внутри ROI по квадратной окрестности радиуса r.
+
+        :param image: Входное изображение (np.uint8), RGB или grayscale.
+        :param roi_image: Изображение ROI (той же формы), где ненулевые пиксели — зона интереса.
+        :param radius: Радиус квадратной окрестности.
+        :return: Изображение с применённым сглаживанием в ROI.
+        """
+
+        if roi_image is None:
+            height, width = image.shape[:2]
+            roi_image = np.ones((height, width), dtype=np.uint8) * 255
+
+        if image.shape[:2] != roi_image.shape[:2]:
+            raise ValueError("Изображения должны быть одного размера.")
+
+        mask = Utils.get_roi_mask_from_region(image, roi_image)
+        kernel_size = 2 * radius + 1
+        output = image.copy()
+
+        if image.ndim == 3:
+            for c in range(3):
+                channel = image[:, :, c]
+                smoothed = cv2.blur(channel, (kernel_size, kernel_size))
+                output[:, :, c][mask == 255] = smoothed[mask == 255]
+        else:
+            smoothed = cv2.blur(image, (kernel_size, kernel_size))
+            output[mask == 255] = smoothed[mask == 255]
+
+        return output
+
+
+    @staticmethod
+    def estimate_white_noise_std(image: np.ndarray, roi_image: np.ndarray = None) -> float:
+        """
+        Оценивает уровень аддитивного белого шума как стандартное отклонение высокочастотной составляющей.
+        """
+        if roi_image is not None:
+            if roi_image.shape[:2] != image.shape[:2]:
+                raise ValueError("Размер roi_image должен совпадать с изображением.")
+            mask = Utils.get_roi_mask_from_region(image, roi_image)
+        else:
+            mask = None
+
+        if image.ndim == 3:
+            image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        else:
+            image_gray = image.copy()
+
+        blurred = cv2.GaussianBlur(image_gray, (3, 3), 0)
+        noise = cv2.absdiff(image_gray, blurred)
+
+        if mask is not None:
+            values = noise[mask == 255]
+        else:
+            values = noise.flatten()
+
+        return float(np.std(values)) if values.size > 0 else 0.0
+
+
+    @staticmethod
+    def reduce_white_noise(image: np.ndarray, roi_image: np.ndarray = None, strength: int = 5) -> np.ndarray:
+        """
+        Уменьшает аддитивный белый шум путём сглаживания.
+        """
+        if roi_image is not None:
+            if roi_image.shape[:2] != image.shape[:2]:
+                raise ValueError("Размер roi_image должен совпадать с изображением.")
+            mask = Utils.get_roi_mask_from_region(image, roi_image)
+        else:
+            mask = None
+
+        output = image.copy()
+        if image.ndim == 3:
+            for c in range(3):
+                channel = image[:, :, c]
+                denoised = cv2.fastNlMeansDenoising(channel, None, h=strength, templateWindowSize=7,
+                                                    searchWindowSize=21)
+                if mask is not None:
+                    output[:, :, c][mask == 255] = denoised[mask == 255]
+                else:
+                    output[:, :, c] = denoised
+        else:
+            denoised = cv2.fastNlMeansDenoising(image, None, h=strength, templateWindowSize=7, searchWindowSize=21)
+            if mask is not None:
+                output[mask == 255] = denoised[mask == 255]
+            else:
+                output = denoised
+
+        return output

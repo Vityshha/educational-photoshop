@@ -34,6 +34,7 @@ class MainController(QObject):
         self.view.signal_quantized_image.connect(self.quantization_metod)
         self.view.signal_calc_statistics.connect(self.calc_statistics_metod)
         self.view.signal_send_selected_zone.connect(self.put_select_zone)
+        self.view.smoothing_dialog.signal_smoothing_image.connect(self.smoothing_image)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -106,21 +107,22 @@ class MainController(QObject):
         image = self.image_model.get_current_image()
         select_zone = self.image_model.get_select_zone()
 
-        if select_zone is not None:
-            if CalcMode.MIN_MAX_AMP.value == calc_mode:
-                UtilsWithDisplay.show_min_max(image, select_zone)
-            elif CalcMode.MEAN_STD.value == calc_mode:
-                UtilsWithDisplay.show_mean_std(image, select_zone)
-            elif CalcMode.HISTOGRAM.value == calc_mode:
-                UtilsWithDisplay.show_histogram(image, select_zone)
-        else:
-            if CalcMode.MIN_MAX_AMP.value == calc_mode:
-                UtilsWithDisplay.show_min_max(image)
-            elif CalcMode.MEAN_STD.value == calc_mode:
-                UtilsWithDisplay.show_mean_std(image)
-            elif CalcMode.HISTOGRAM.value == calc_mode:
-                UtilsWithDisplay.show_histogram(image)
-
+        if image is not None:
+            if select_zone is not None:
+                if is_selected_zone:
+                    if CalcMode.MIN_MAX_AMP.value == calc_mode:
+                        UtilsWithDisplay.show_min_max(image, select_zone)
+                    elif CalcMode.MEAN_STD.value == calc_mode:
+                        UtilsWithDisplay.show_mean_std(image, select_zone)
+                    elif CalcMode.HISTOGRAM.value == calc_mode:
+                        UtilsWithDisplay.show_histogram(image, select_zone)
+                else:
+                    if CalcMode.MIN_MAX_AMP.value == calc_mode:
+                        UtilsWithDisplay.show_min_max(image)
+                    elif CalcMode.MEAN_STD.value == calc_mode:
+                        UtilsWithDisplay.show_mean_std(image)
+                    elif CalcMode.HISTOGRAM.value == calc_mode:
+                        UtilsWithDisplay.show_histogram(image)
 
 
     def put_select_zone(self, selected_zone):
@@ -128,3 +130,11 @@ class MainController(QObject):
         if image is not None:
             selected_zone_image = Utils.extract_roi_from_region(image, selected_zone)
             self.image_model.put_select_zone(selected_zone_image)
+
+
+    def smoothing_image(self, radius):
+        image = self.image_model.get_current_image()
+        if image is not None:
+            select_zone = self.image_model.get_select_zone()
+            smooth_image = Utils.smooth_roi(image, select_zone, radius)
+            self.signal_send_image.emit(smooth_image)
