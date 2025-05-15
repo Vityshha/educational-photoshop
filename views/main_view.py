@@ -175,6 +175,15 @@ class MainWindow(QMainWindow):
             self.signal_redo_image.emit()
 
 
+    def keyPressEvent(self, event):
+        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_Z:
+            self.signal_undo_image.emit()
+        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_Y:
+            self.signal_redo_image.emit()
+        else:
+            super().keyPressEvent(event)
+
+
     def eventFilter(self, obj, event):
         if obj == self.ui.lbl_paint and event.type() == QEvent.Resize:
             new_size = self.ui.lbl_paint.size()
