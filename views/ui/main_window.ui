@@ -325,7 +325,7 @@ background-color: transparent;
                 </property>
                </widget>
               </item>
-              <item alignment="Qt::AlignLeft">
+              <item>
                <widget class="QFrame" name="frame_9">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -480,6 +480,37 @@ image: url(:/newPrefix/images/cadence.png);</string>
                   <widget class="QLabel" name="label_5">
                    <property name="text">
                     <string>Сглаживание</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="frame_14">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_11">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_noise">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/heat_96dp.png);
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_7">
+                   <property name="text">
+                    <string>Работа с шумом</string>
                    </property>
                   </widget>
                  </item>

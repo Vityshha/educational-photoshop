@@ -77,3 +77,49 @@ class SmoothingDialog(QDialog):
     def closeEvent(self, event):
         self.finished.emit()
         super().closeEvent(event)
+
+
+class DenoiseDialog(QDialog):
+    signal_denoise_image = pyqtSignal(int)
+    signal_estimate_noise = pyqtSignal()
+    finished = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(DenoiseDialog, self).__init__(parent)
+        self.setWindowTitle("Параметры подавления шума")
+
+        layout = QVBoxLayout()
+
+        level_layout = QHBoxLayout()
+        level_layout.addWidget(QLabel("Уровень подавления шума:"))
+        self.level_input = QSpinBox()
+        self.level_input.setMinimum(1)
+        self.level_input.setMaximum(100)
+        self.level_input.setValue(15)
+        level_layout.addWidget(self.level_input)
+        layout.addLayout(level_layout)
+
+        button_layout = QHBoxLayout()
+
+        self.confirm_button = QPushButton("Применить")
+        self.confirm_button.clicked.connect(self.emit_level)
+        button_layout.addWidget(self.confirm_button)
+
+        self.measure_button = QPushButton("Измерить")
+        self.measure_button.clicked.connect(self.emit_measure)
+        button_layout.addWidget(self.measure_button)
+
+        layout.addLayout(button_layout)
+        self.setLayout(layout)
+
+    def emit_level(self):
+        level = self.level_input.value()
+        self.signal_denoise_image.emit(level)
+        self.close()
+
+    def emit_measure(self):
+        self.signal_estimate_noise.emit()
+
+    def closeEvent(self, event):
+        self.finished.emit()
+        super().closeEvent(event)

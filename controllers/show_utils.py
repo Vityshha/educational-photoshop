@@ -77,3 +77,22 @@ class UtilsWithDisplay:
 
         cv2.imshow("Histogram", img_bgr)
         cv2.waitKey(0)
+
+
+    @staticmethod
+    def show_noise_estimation(image: np.ndarray, roi_image: np.ndarray = None):
+        """
+        Отображает оценку аддитивного белого шума (СКО высокочастотной составляющей).
+        """
+        noise_std = Utils.estimate_white_noise_std(image, roi_image)
+        text = f"Estimated noise (std): {noise_std:.2f}"
+
+        canvas_height = 100
+        canvas_width = 400
+        canvas = np.ones((canvas_height, canvas_width, 3), dtype=np.uint8) * 255
+
+        cv2.putText(canvas, text, (10, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2, cv2.LINE_AA)
+
+        cv2.imshow("Noise Estimation", canvas)
+        cv2.waitKey(0)

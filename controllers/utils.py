@@ -395,12 +395,15 @@ class Utils:
         """
         Оценивает уровень аддитивного белого шума как стандартное отклонение высокочастотной составляющей.
         """
-        if roi_image is not None:
+
+        if roi_image is None:
+            height, width = image.shape[:2]
+            mask = np.ones((height, width), dtype=np.uint8) * 255
+        else:
             if roi_image.shape[:2] != image.shape[:2]:
                 raise ValueError("Размер roi_image должен совпадать с изображением.")
             mask = Utils.get_roi_mask_from_region(image, roi_image)
-        else:
-            mask = None
+
 
         if image.ndim == 3:
             image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -423,12 +426,14 @@ class Utils:
         """
         Уменьшает аддитивный белый шум путём сглаживания.
         """
-        if roi_image is not None:
+
+        if roi_image is None:
+            height, width = image.shape[:2]
+            mask = np.ones((height, width), dtype=np.uint8) * 255
+        else:
             if roi_image.shape[:2] != image.shape[:2]:
                 raise ValueError("Размер roi_image должен совпадать с изображением.")
             mask = Utils.get_roi_mask_from_region(image, roi_image)
-        else:
-            mask = None
 
         output = image.copy()
         if image.ndim == 3:
