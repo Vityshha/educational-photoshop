@@ -8,7 +8,7 @@ import numpy as np
 
 from views.custom_combo_box import FileComboBox, SelectComboBox
 from views.custom_dialog_window import ScaleMenu
-from views.ui.menus import CalcMenu, SmoothingDialog, DenoiseDialog
+from views.ui.menus import CalcMenu, SmoothingDialog, DenoiseDialog, RotateDialog
 
 from views.views_enums import ScaleMode, CalcMode
 from models.image_model import ImageModel
@@ -75,6 +75,7 @@ class MainWindow(QMainWindow):
         self.ui.btn_quant.clicked.connect(lambda: self.signal_quantized_image.emit())
         self.ui.btn_smoothing.clicked.connect(lambda : self.smoothing_dialog.show())
         self.ui.btn_noise.clicked.connect(lambda: self.denoise_dialog.show())
+        self.ui.btn_rotate.clicked.connect(lambda: self.rotate_dialog.show())
 
         self.file_combo_box.activated.connect(self.on_combo_box_changed)
         self.select_combo_box.activated.connect(self.on_combo_box_select_change)
@@ -100,6 +101,7 @@ class MainWindow(QMainWindow):
 
         self.smoothing_dialog = SmoothingDialog()
         self.denoise_dialog = DenoiseDialog()
+        self.rotate_dialog = RotateDialog()
 
 
     def close_dialog_resize(self):

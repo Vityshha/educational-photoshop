@@ -123,3 +123,45 @@ class DenoiseDialog(QDialog):
     def closeEvent(self, event):
         self.finished.emit()
         super().closeEvent(event)
+
+
+class RotateDialog(QDialog):
+    signal_rotate_image = pyqtSignal(float)
+    finished = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(RotateDialog, self).__init__(parent)
+        self.setWindowTitle("Параметры поворота изображения")
+
+        layout = QVBoxLayout()
+
+        angle_layout = QHBoxLayout()
+        angle_layout.addWidget(QLabel("Угол поворота (в градусах):"))
+        self.angle_input = QSpinBox()
+        self.angle_input.setMinimum(-360)
+        self.angle_input.setMaximum(360)
+        self.angle_input.setValue(90)
+        angle_layout.addWidget(self.angle_input)
+        layout.addLayout(angle_layout)
+
+        button_layout = QHBoxLayout()
+
+        self.confirm_button = QPushButton("Повернуть")
+        self.confirm_button.clicked.connect(self.emit_angle)
+        button_layout.addWidget(self.confirm_button)
+
+        self.close_button = QPushButton("Отмена")
+        self.close_button.clicked.connect(self.close)
+        button_layout.addWidget(self.close_button)
+
+        layout.addLayout(button_layout)
+        self.setLayout(layout)
+
+    def emit_angle(self):
+        angle = self.angle_input.value()
+        self.signal_rotate_image.emit(angle)
+        self.close()
+
+    def closeEvent(self, event):
+        self.finished.emit()
+        super().closeEvent(event)

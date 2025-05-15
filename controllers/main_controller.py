@@ -37,6 +37,7 @@ class MainController(QObject):
         self.view.smoothing_dialog.signal_smoothing_image.connect(self.smoothing_image)
         self.view.denoise_dialog.signal_denoise_image.connect(self.denoise_image)
         self.view.denoise_dialog.signal_estimate_noise.connect(self.measure_noise)
+        self.view.rotate_dialog.signal_rotate_image.connect(self.rotate_image)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -155,3 +156,10 @@ class MainController(QObject):
         if image is not None:
             select_zone = self.image_model.get_select_zone()
             UtilsWithDisplay.show_noise_estimation(image, select_zone)
+
+
+    def rotate_image(self, angle):
+        image = self.image_model.get_current_image()
+        if image is not None:
+            rotate_image = Utils.rotate_image(image, angle)
+            self.signal_send_image.emit(rotate_image)

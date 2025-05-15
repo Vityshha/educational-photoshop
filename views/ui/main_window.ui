@@ -69,7 +69,7 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item alignment="Qt::AlignLeft">
+       <item>
         <widget class="QFrame" name="frame_3">
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
@@ -162,6 +162,39 @@ QPushButton:checked {
             </property>
            </widget>
           </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_undo">
+            <property name="styleSheet">
+             <string notr="true">image: url(:/newPrefix/images/undo.png);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignRight">
+           <widget class="QPushButton" name="btn_redo">
+            <property name="styleSheet">
+             <string notr="true">image: url(:/newPrefix/images/redo.png);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -207,47 +240,10 @@ QPushButton:checked {
              <number>0</number>
             </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="main_page">
              <layout class="QHBoxLayout" name="horizontalLayout_9">
-              <item>
-               <widget class="QPushButton" name="btn_undo">
-                <property name="styleSheet">
-                 <string notr="true">image: url(:/newPrefix/images/undo.png);</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="btn_redo">
-                <property name="styleSheet">
-                 <string notr="true">image: url(:/newPrefix/images/redo.png);</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tools_page">
-             <layout class="QHBoxLayout" name="horizontalLayout_10">
               <property name="spacing">
                <number>0</number>
               </property>
@@ -318,6 +314,69 @@ background-color: transparent;
                 </layout>
                </widget>
               </item>
+              <item>
+               <widget class="QFrame" name="frame_14">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_11">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_rotate">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/switch.png);
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_7">
+                   <property name="text">
+                    <string>Повернуть</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tools_page">
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item>
                <widget class="Line" name="line_4">
                 <property name="orientation">
@@ -487,20 +546,19 @@ image: url(:/newPrefix/images/cadence.png);</string>
                </widget>
               </item>
               <item>
-               <widget class="QFrame" name="frame_14">
+               <widget class="QFrame" name="frame_15">
                 <property name="frameShape">
                  <enum>QFrame::StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
-                <layout class="QVBoxLayout" name="verticalLayout_11">
+                <layout class="QVBoxLayout" name="verticalLayout_10">
                  <item alignment="Qt::AlignHCenter">
                   <widget class="QPushButton" name="btn_noise">
                    <property name="styleSheet">
                     <string notr="true">background-color: transparent;
-image: url(:/newPrefix/images/heat_96dp.png);
-</string>
+image: url(:/newPrefix/images/heat_96dp.png);</string>
                    </property>
                    <property name="text">
                     <string/>
@@ -508,7 +566,7 @@ image: url(:/newPrefix/images/heat_96dp.png);
                   </widget>
                  </item>
                  <item alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="label_7">
+                  <widget class="QLabel" name="label_6">
                    <property name="text">
                     <string>Работа с шумом</string>
                    </property>
