@@ -5,11 +5,13 @@ from views.views_enums import ComboBoxItem, StackedWidget, ComboBoxSelect, Selec
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QEvent, Qt, QRect, QPoint
 import numpy as np
 
+
 from views.custom_combo_box import FileComboBox, SelectComboBox
 from views.custom_dialog_window import ScaleMenu
 from views.ui.calc_menu import CalcMenu
 
 from views.views_enums import ScaleMode, CalcMode
+from models.image_model import ImageModel
 
 
 class MainWindow(QMainWindow):
@@ -23,9 +25,10 @@ class MainWindow(QMainWindow):
     signal_grayscale_image = pyqtSignal()
     signal_quantized_image = pyqtSignal()
     signal_contrast_image = pyqtSignal()
+    signal_send_selected_zone = pyqtSignal(object)
+    signal_calc_statistics = pyqtSignal(int, bool)
 
-
-    def __init__(self, image_model):
+    def __init__(self, image_model: ImageModel):
         super().__init__()
         self.image_model = image_model
         self.ui = Ui_MainWindow()
@@ -74,7 +77,6 @@ class MainWindow(QMainWindow):
         self.select_combo_box.activated.connect(self.on_combo_box_select_change)
 
 
-
     def init_combo_box(self):
         self.file_combo_box = FileComboBox(self.ui.cb_file.geometry(), self)
         self.ui.cb_file.mousePressEvent = self.show_combo_box
@@ -99,10 +101,12 @@ class MainWindow(QMainWindow):
         self.ui.frame_9.setStyleSheet(SelectMode.UNSELECT.value)
         self.ui.btn_resize.setChecked(False)
 
+
     def create_white_pixmap(self, size):
         pixmap = QPixmap(size)
         pixmap.fill(Qt.white)
         return pixmap
+
 
     def show_combo_box(self, event):
         self.file_combo_box.showPopup()
@@ -115,10 +119,8 @@ class MainWindow(QMainWindow):
     def on_combo_box_changed(self, index):
         selected_index = self.file_combo_box.currentIndex()
         if selected_index == ComboBoxItem.OPEN.value:
-            print('Отправить сигнал об отрытии изображения')
             self.open_image()
         elif selected_index == ComboBoxItem.SAVE.value:
-            print('Отрпавить сигнал о сохранении изображения')
             self.save_image()
 
 
@@ -127,11 +129,9 @@ class MainWindow(QMainWindow):
         if not self.ui.btn_select_frame.isChecked():
             self.ui.btn_select_frame.click()
         if selected_index == ComboBoxSelect.RECTANGLE.value:
-            print('Прямоугольная область')
             self.selection_type = ComboBoxSelect.RECTANGLE.value
             self.is_selection_tool_active = True
         else:
-            print('Произвольная область')
             self.selection_type = ComboBoxSelect.FREEHAND.value
             self.is_selection_tool_active = True
 
@@ -165,11 +165,10 @@ class MainWindow(QMainWindow):
     def switch_image(self):
         sender = self.sender()
         if sender == self.ui.btn_undo:
-            print('Переключаем на прошлое состояние изображения')
             self.signal_undo_image.emit()
         else:
-            print('Переключаем на следующее состояние если есть')
             self.signal_redo_image.emit()
+
 
     def eventFilter(self, obj, event):
         if obj == self.ui.lbl_paint and event.type() == QEvent.Resize:
@@ -256,7 +255,27 @@ class MainWindow(QMainWindow):
                         self.points.append(self.points[0])
                         self.update_temp_selection()
 
+                    self.emit_current_roi()
+
         return super().eventFilter(obj, event)
+
+
+    def emit_current_roi(self):
+        region = None
+        if self.selection_type == ComboBoxSelect.RECTANGLE.value:
+            if self.selection_start_point and self.selection_end_point:
+                region = QRect(QPoint(*self.selection_start_point),
+                               QPoint(*self.selection_end_point)).normalized()
+        elif self.selection_type == ComboBoxSelect.FREEHAND.value and hasattr(self, 'points') and len(self.points) > 2:
+            path = QPainterPath()
+            path.moveTo(QPoint(*self.points[0]))
+            for point in self.points[1:]:
+                path.lineTo(QPoint(*point))
+            region = path
+
+        if region:
+            self.signal_send_selected_zone.emit(region)
+
 
     def update_temp_selection(self):
         if self.start_point and self.end_point:
@@ -312,6 +331,7 @@ class MainWindow(QMainWindow):
         if file_name:
             self.signal_save_image.emit(file_name)
 
+
     @pyqtSlot(np.ndarray)
     def put_image(self, image: np.ndarray):
         if image is None or image.size == 0:
@@ -353,6 +373,7 @@ class MainWindow(QMainWindow):
     def put_select_size(self, width, height):
         self.ui.lbl_select.setText(f"{width}x{height} пкс")
 
+
     def put_position_mouse(self, x, y):
         self.ui.lbl_pos.setText(f"x: {x}, y: {y}")
 
@@ -373,6 +394,7 @@ class MainWindow(QMainWindow):
         if pixmap:
             return pixmap.width(), pixmap.height()
         return None, None
+
 
     def scale_coordinates(self, x, y):
         pixmap = self.ui.lbl_paint.pixmap()
@@ -436,9 +458,6 @@ class MainWindow(QMainWindow):
             self.calc_menu.smooth_button: CalcMode.SMOOTHING_AMP.value,
         }
 
-        print(buttons[sender])
+        is_selected_zone = self.calc_menu.is_selected_zone
 
-        if self.calc_menu.is_selected_zone:
-            print('Для выбранной зоны')
-        else:
-            print('Для всей области')
+        self.signal_calc_statistics.emit(buttons[sender], is_selected_zone)
