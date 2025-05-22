@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from scipy.signal import correlate2d
+from scipy.signal import fftconvolve
 
 from PyQt5.QtGui import  QPainterPath
 from PyQt5.QtCore import QRect
@@ -623,20 +623,33 @@ class Utils:
         :param roi_mask: Бинарная маска зоны интереса (0 и 255), такого же размера как изображение.
         :return: Нормализованная корреляционная функция.
         """
+
+        roi_mask = Utils.get_roi_mask_from_region(image, roi_mask)
+
         if image.ndim == 3:
             image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
         if roi_mask is not None:
             if roi_mask.shape != image.shape:
                 raise ValueError("Размер маски должен совпадать с изображением.")
-            image = np.where(roi_mask == 255, image, 0)
+
+            ys, xs = np.where(roi_mask == 255)
+            if len(xs) == 0 or len(ys) == 0:
+                raise ValueError("ROI пустая.")
+
+            y_min, y_max = ys.min(), ys.max() + 1
+            x_min, x_max = xs.min(), xs.max() + 1
+
+            image = image[y_min:y_max, x_min:x_max]
 
         image = image.astype(np.float32)
-        image -= np.mean(image[image != 0])  # Центрирование по среднему
+        nonzero = image[image != 0]
+        if nonzero.size == 0:
+            raise ValueError("ROI пустая.")
+        image -= np.mean(nonzero)
 
-        correlation = correlate2d(image, image, mode='full', boundary='fill', fillvalue=0)
+        # Быстрая корреляция (через FFT, auto-корреляция = свёртка с отражением)
+        correlation = fftconvolve(image, image[::-1, ::-1], mode='full')
         correlation /= np.max(np.abs(correlation))  # Нормализация
-
         return correlation
 
 

@@ -44,6 +44,7 @@ class MainController(QObject):
         self.view.pixel_edit_dialog.signal_build_piecewise.connect(self.generate_piecewise_map)
         self.view.random_scene_dialog.signal_generate_scene.connect(self.create_random_scene)
         self.view.smoothed_scene_dialog.signal_generate_smoothed.connect(self.create_smoothed_scene)
+        self.view.ui.btn_correlation.clicked.connect(self.calculate_correlation_fun)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -207,3 +208,10 @@ class MainController(QObject):
         smoothed, m_est, std_est = Utils.generate_smoothed_scene(h=h, w=w, r=r, mean=mean, std=std)
         if smoothed is not None:
             self.signal_send_image.emit(smoothed)
+
+
+    def calculate_correlation_fun(self):
+        image = self.image_model.get_current_image()
+        select_zone = self.image_model.get_select_zone()
+        if image is not None:
+            UtilsWithDisplay.show_correlation_function(None, image, select_zone)

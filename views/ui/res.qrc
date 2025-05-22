@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="newPrefix">
+    <file>images/filter_96dp_000000_FILL0_wght400_GRAD0_opsz48.png</file>
     <file>images/gradient_96dp_000000_FILL0_wght400_GRAD0_opsz48.png</file>
     <file>images/imagesmode_96dp_000000_FILL0_wght400_GRAD0_opsz48.png</file>
     <file>images/analytics_96dp_000000_FILL0_wght400_GRAD0_opsz48.png</file>

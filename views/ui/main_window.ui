@@ -700,6 +700,37 @@ image: url(:/newPrefix/images/gradient_96dp_000000_FILL0_wght400_GRAD0_opsz48.pn
                </widget>
               </item>
               <item>
+               <widget class="QFrame" name="frame_20">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_16">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_correlation">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/filter_96dp_000000_FILL0_wght400_GRAD0_opsz48.png);
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_12">
+                   <property name="text">
+                    <string>Корреляция</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
                <spacer name="horizontalSpacer_2">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>

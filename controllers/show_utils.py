@@ -1,5 +1,9 @@
 import cv2
 import numpy as np
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem
+
 from controllers.utils import Utils
 import matplotlib.pyplot as plt
 
@@ -99,14 +103,53 @@ class UtilsWithDisplay:
 
 
     @staticmethod
-    def show_correlation_function(image: np.ndarray, roi_image: np.ndarray = None):
+    def show_correlation_function(parent, image: np.ndarray, roi_image: np.ndarray = None,
+                                  title="Корреляционная матрица"):
         """
-        Отображает 2D корреляционную функцию изображения или ROI через OpenCV.
+        Строит и отображает корреляционную функцию как таблицу чисел в QDialog, с цветовым кодированием значений.
+
+        :param parent: Родительское окно (обычно self или None).
+        :param image: Входное изображение.
+        :param roi_image: Маска ROI (или None).
+        :param title: Заголовок окна.
         """
-        corr_map = Utils.estimate_correlation_function(image, roi_image)
+        corr = Utils.estimate_correlation_function(image, roi_image)
 
-        corr_norm = cv2.normalize(corr_map, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
-        corr_colored = cv2.applyColorMap(corr_norm, cv2.COLORMAP_JET)
+        # Нормализация в диапазон [0, 1]
+        corr_min = np.min(corr)
+        corr_max = np.max(corr)
+        corr_norm = (corr - corr_min) / (corr_max - corr_min + 1e-8)
 
-        cv2.imshow("Correlation Function", corr_colored)
-        cv2.waitKey(0)
+        dialog = QDialog(parent)
+        dialog.setWindowTitle(title)
+        layout = QVBoxLayout(dialog)
+
+        label = QLabel(f"Размер: {corr.shape[0]}×{corr.shape[1]}")
+        layout.addWidget(label)
+
+        table = QTableWidget()
+        table.setRowCount(corr.shape[0])
+        table.setColumnCount(corr.shape[1])
+
+        for i in range(corr.shape[0]):
+            for j in range(corr.shape[1]):
+                val = corr[i, j]
+                norm_val = corr_norm[i, j]
+
+                # Преобразуем значение в цвет от синего к красному через зелёный
+                red = int(norm_val * 255)
+                green = int((1 - abs(norm_val - 0.5) * 2) * 255)
+                blue = int((1 - norm_val) * 255)
+                color = QColor(red, green, blue)
+
+                item = QTableWidgetItem(f"{val:.2f}")
+                item.setTextAlignment(Qt.AlignCenter)
+                item.setBackground(color)
+                table.setItem(i, j, item)
+
+        table.resizeColumnsToContents()
+        table.resizeRowsToContents()
+        layout.addWidget(table)
+
+        dialog.resize(800, 800)
+        dialog.exec_()
