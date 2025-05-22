@@ -38,6 +38,7 @@ class MainController(QObject):
         self.view.denoise_dialog.signal_denoise_image.connect(self.denoise_image)
         self.view.denoise_dialog.signal_estimate_noise.connect(self.measure_noise)
         self.view.rotate_dialog.signal_rotate_image.connect(self.rotate_image)
+        self.view.ui.btn_crop.clicked.connect(self.crop_image)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -58,12 +59,8 @@ class MainController(QObject):
 
     def save_image(self, file_name: str):
         image = self.image_model.get_current_image()
-        select_zone = self.image_model.get_select_zone()
-        if select_zone is not None:
-            Utils.save_image(file_name, select_zone, is_select_mode=True)
-        else:
-            if image is not None:
-                Utils.save_image(file_name, image)
+        if image is not None:
+            Utils.save_image(file_name, image)
 
 
     def get_image_rgb(self, x, y):
@@ -112,20 +109,20 @@ class MainController(QObject):
 
         if image is not None:
             if select_zone is not None:
-                if is_selected_zone:
-                    if CalcMode.MIN_MAX_AMP.value == calc_mode:
-                        UtilsWithDisplay.show_min_max(image, select_zone)
-                    elif CalcMode.MEAN_STD.value == calc_mode:
-                        UtilsWithDisplay.show_mean_std(image, select_zone)
-                    elif CalcMode.HISTOGRAM.value == calc_mode:
-                        UtilsWithDisplay.show_histogram(image, select_zone)
-                else:
-                    if CalcMode.MIN_MAX_AMP.value == calc_mode:
-                        UtilsWithDisplay.show_min_max(image)
-                    elif CalcMode.MEAN_STD.value == calc_mode:
-                        UtilsWithDisplay.show_mean_std(image)
-                    elif CalcMode.HISTOGRAM.value == calc_mode:
-                        UtilsWithDisplay.show_histogram(image)
+                # if is_selected_zone:
+                if CalcMode.MIN_MAX_AMP.value == calc_mode:
+                    UtilsWithDisplay.show_min_max(image, select_zone)
+                elif CalcMode.MEAN_STD.value == calc_mode:
+                    UtilsWithDisplay.show_mean_std(image, select_zone)
+                elif CalcMode.HISTOGRAM.value == calc_mode:
+                    UtilsWithDisplay.show_histogram(image, select_zone)
+            else:
+                if CalcMode.MIN_MAX_AMP.value == calc_mode:
+                    UtilsWithDisplay.show_min_max(image)
+                elif CalcMode.MEAN_STD.value == calc_mode:
+                    UtilsWithDisplay.show_mean_std(image)
+                elif CalcMode.HISTOGRAM.value == calc_mode:
+                    UtilsWithDisplay.show_histogram(image)
 
 
     def put_select_zone(self, selected_zone):
@@ -163,3 +160,10 @@ class MainController(QObject):
         if image is not None:
             rotate_image = Utils.rotate_image(image, angle)
             self.signal_send_image.emit(rotate_image)
+
+
+    def crop_image(self):
+        select_zone = self.image_model.get_select_zone()
+        if select_zone is not None:
+            crop = Utils.crop_to_roi(select_zone)
+            self.signal_send_image.emit(crop)

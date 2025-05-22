@@ -96,3 +96,17 @@ class UtilsWithDisplay:
 
         cv2.imshow("Noise Estimation", canvas)
         cv2.waitKey(0)
+
+
+    @staticmethod
+    def show_correlation_function(image: np.ndarray, roi_image: np.ndarray = None):
+        """
+        Отображает 2D корреляционную функцию изображения или ROI через OpenCV.
+        """
+        corr_map = Utils.estimate_correlation_function(image, roi_image)
+
+        corr_norm = cv2.normalize(corr_map, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+        corr_colored = cv2.applyColorMap(corr_norm, cv2.COLORMAP_JET)
+
+        cv2.imshow("Correlation Function", corr_colored)
+        cv2.waitKey(0)

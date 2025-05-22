@@ -315,6 +315,46 @@ background-color: transparent;
                </widget>
               </item>
               <item>
+               <widget class="QFrame" name="frame_9">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_resize">
+                   <property name="styleSheet">
+                    <string notr="true">image: url(:/newPrefix/images/picture_in_picture.png);
+background-color: transparent;
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>Изменить размер</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
                <widget class="QFrame" name="frame_14">
                 <property name="frameShape">
                  <enum>QFrame::StyledPanel</enum>
@@ -339,6 +379,37 @@ image: url(:/newPrefix/images/switch.png);
                   <widget class="QLabel" name="label_7">
                    <property name="text">
                     <string>Повернуть</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="frame_16">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_12">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_crop">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/crop.png);
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_8">
+                   <property name="text">
+                    <string>Вырезать</string>
                    </property>
                   </widget>
                  </item>
@@ -382,46 +453,6 @@ image: url(:/newPrefix/images/switch.png);
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QFrame" name="frame_9">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_4">
-                 <item alignment="Qt::AlignHCenter">
-                  <widget class="QPushButton" name="btn_resize">
-                   <property name="styleSheet">
-                    <string notr="true">image: url(:/newPrefix/images/picture_in_picture.png);
-background-color: transparent;
-</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="checkable">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="label_2">
-                   <property name="text">
-                    <string>Изменить размер</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
                </widget>
               </item>
               <item>
@@ -645,7 +676,7 @@ image: url(:/newPrefix/images/heat_96dp.png);</string>
             <x>0</x>
             <y>0</y>
             <width>936</width>
-            <height>504</height>
+            <height>505</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">

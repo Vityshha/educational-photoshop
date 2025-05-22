@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="newPrefix">
+    <file>images/crop.png</file>
     <file>images/switch.png</file>
     <file>images/heat_96dp.png</file>
     <file>images/cadence.png</file>

@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from scipy.signal import correlate2d
 
 from PyQt5.QtGui import  QPainterPath
 from PyQt5.QtCore import QRect
@@ -144,23 +145,21 @@ class Utils:
             raise ValueError("Изображение не должно быть None.")
 
         if roi_image is not None:
-            if roi_image.shape != image.shape:
+            if roi_image.shape[:2] != image.shape[:2]:
                 raise ValueError("Размер roi_image должен совпадать с изображением.")
-
-            # Строим маску: пиксели, где хотя бы один канал > 0
             if roi_image.ndim == 3:
-                mask = np.any(roi_image != 0, axis=2).astype(np.uint8) * 255
+                mask = (np.any(roi_image != 0, axis=2)).astype(np.uint8) * 255
             else:
                 mask = (roi_image != 0).astype(np.uint8) * 255
         else:
-            mask = None
+            mask = np.ones(image.shape[:2], dtype=np.uint8) * 255
 
         output = image.copy()
 
         if image.ndim == 3:
             for c in range(3):
                 channel = image[:, :, c]
-                roi_values = channel[mask == 255] if mask is not None else channel.flatten()
+                roi_values = channel[mask == 255]
 
                 if roi_values.size == 0:
                     continue
@@ -170,14 +169,10 @@ class Utils:
                     continue
 
                 stretched = np.clip((channel.astype(np.float32) - m) * (255.0 / (M - m)), 0, 255).astype(np.uint8)
-
-                if mask is not None:
-                    output[:, :, c][mask == 255] = stretched[mask == 255]
-                else:
-                    output[:, :, c] = stretched
+                output[:, :, c][mask == 255] = stretched[mask == 255]
         else:
             channel = image
-            roi_values = channel[mask == 255] if mask is not None else channel.flatten()
+            roi_values = channel[mask == 255]
 
             if roi_values.size == 0:
                 return image.copy()
@@ -187,11 +182,7 @@ class Utils:
                 return image.copy()
 
             stretched = np.clip((channel.astype(np.float32) - m) * (255.0 / (M - m)), 0, 255).astype(np.uint8)
-
-            if mask is not None:
-                output[mask == 255] = stretched[mask == 255]
-            else:
-                output = stretched
+            output[mask == 255] = stretched[mask == 255]
 
         return output
 
@@ -494,3 +485,136 @@ class Utils:
 
         return rotated
 
+
+    @staticmethod
+    def crop_to_roi(select_zone: np.ndarray) -> np.ndarray:
+        """
+        Обрезает изображение до зоны интереса, исключая черный фон.
+        Чёрный фон внутри ограничивающего прямоугольника заменяется на белый.
+        :param select_zone: Вырезанная область (RGB или grayscale) на черном фоне.
+        :return: Обрезанное изображение с белым фоном.
+        """
+        if select_zone is None or select_zone.size == 0:
+            return select_zone
+
+        if select_zone.ndim == 3:
+            mask = np.any(select_zone != 0, axis=2).astype(np.uint8) * 255
+        else:
+            mask = (select_zone != 0).astype(np.uint8) * 255
+
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if not contours:
+            shape = (1, 1, select_zone.shape[2]) if select_zone.ndim == 3 else (1, 1)
+            return np.ones(shape, dtype=select_zone.dtype) * 255  # Возвращаем белый пиксель
+
+        x, y, w, h = cv2.boundingRect(max(contours, key=cv2.contourArea))
+
+        cropped = select_zone[y:y + h, x:x + w]
+        cropped_mask = mask[y:y + h, x:x + w]
+
+        if select_zone.ndim == 3:
+            white_bg = np.ones_like(cropped) * 255
+            cropped = np.where(cropped_mask[:, :, None] == 255, cropped, white_bg)
+        else:
+            white_bg = np.ones_like(cropped) * 255
+            cropped = np.where(cropped_mask == 255, cropped, white_bg)
+
+        return cropped
+
+
+    @staticmethod
+    def get_pixel_value(image: np.ndarray, x: int, y: int):
+        """
+        Возвращает амплитуду пикселя по координатам (x, y).
+        :param image: Изображение (grayscale или RGB).
+        :param x: Координата X.
+        :param y: Координата Y.
+        :return: Значение пикселя (int или tuple).
+        """
+        if not (0 <= y < image.shape[0]) or not (0 <= x < image.shape[1]):
+            raise ValueError("Координаты вне границ изображения.")
+
+        if image.ndim == 2:
+            return int(image[y, x])
+        elif image.ndim == 3:
+            return tuple(int(v) for v in image[y, x])
+        else:
+            raise ValueError("Неподдерживаемый формат изображения.")
+
+
+    @staticmethod
+    def set_pixel_value(image: np.ndarray, x: int, y: int, value):
+        """
+        Устанавливает амплитуду пикселя по координатам (x, y).
+        :param image: Изображение (grayscale или RGB).
+        :param x: Координата X.
+        :param y: Координата Y.
+        :param value: Новое значение (int или tuple).
+        """
+        if not (0 <= y < image.shape[0]) or not (0 <= x < image.shape[1]):
+            raise ValueError("Координаты вне границ изображения.")
+
+        if image.ndim == 2:
+            image[y, x] = value
+        elif image.ndim == 3:
+            image[y, x] = tuple(value)
+        else:
+            raise ValueError("Неподдерживаемый формат изображения.")
+
+
+    @staticmethod
+    def create_piecewise_constant_map(image_shape: tuple, regions: list, fill_value=128) -> np.ndarray:
+        """
+        Создаёт изображение с кусочно-постоянными амплитудами по заданным регионам.
+
+        :param image_shape: Размер изображения (h, w) или (h, w, 3)
+        :param regions: Список кортежей (region_mask, value), где:
+                        - region_mask — бинарная маска (2D np.ndarray), 1 внутри области, 0 — снаружи
+                        - value — амплитуда (int для grayscale, tuple для RGB)
+        :param fill_value: Значение фона вне всех областей.
+        :return: Новое изображение.
+        """
+        if len(image_shape) == 2:
+            output = np.ones(image_shape, dtype=np.uint8) * fill_value
+        elif len(image_shape) == 3:
+            output = np.ones(image_shape, dtype=np.uint8) * fill_value
+        else:
+            raise ValueError("Неверная форма изображения")
+
+        for mask, value in regions:
+            if mask.shape != image_shape[:2]:
+                raise ValueError("Маска должна совпадать по размеру с изображением")
+
+            if output.ndim == 2:
+                output[mask == 1] = value
+            else:
+                for c in range(3):
+                    output[:, :, c][mask == 1] = value[c]
+
+        return output
+
+
+    @staticmethod
+    def estimate_correlation_function(image: np.ndarray, roi_mask: np.ndarray = None) -> np.ndarray:
+        """
+        Оценивает двумерную корреляционную функцию изображения или его ROI.
+
+        :param image: Входное изображение (градационное или RGB, np.uint8).
+        :param roi_mask: Бинарная маска зоны интереса (0 и 255), такого же размера как изображение.
+        :return: Нормализованная корреляционная функция.
+        """
+        if image.ndim == 3:
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+        if roi_mask is not None:
+            if roi_mask.shape != image.shape:
+                raise ValueError("Размер маски должен совпадать с изображением.")
+            image = np.where(roi_mask == 255, image, 0)
+
+        image = image.astype(np.float32)
+        image -= np.mean(image[image != 0])  # Центрирование по среднему
+
+        correlation = correlate2d(image, image, mode='full', boundary='fill', fillvalue=0)
+        correlation /= np.max(np.abs(correlation))  # Нормализация
+
+        return correlation
