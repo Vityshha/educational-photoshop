@@ -42,6 +42,7 @@ class MainController(QObject):
         self.view.pixel_edit_dialog.signal_get_amplitude.connect(self.get_amplitude)
         self.view.pixel_edit_dialog.signal_set_amplitude.connect(self.set_amplitude)
         self.view.pixel_edit_dialog.signal_build_piecewise.connect(self.generate_piecewise_map)
+        self.view.random_scene_dialog.signal_generate_scene.connect(self.create_random_scene)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -69,7 +70,8 @@ class MainController(QObject):
     def get_image_rgb(self, x, y):
         image = self.image_model.get_current_image()
         if image is not None:
-            r, g, b = Utils.get_rgb(image, x, y)
+            rgb_image = Utils.ensure_rgb(image)
+            r, g, b = Utils.get_rgb(rgb_image, x, y)
             self.signal_send_rgb.emit(r, g, b)
 
 
@@ -192,3 +194,9 @@ class MainController(QObject):
         if image is not None:
             image = Utils.generate_piecewise_grid(image, block_size)
             self.signal_send_image.emit(image)
+
+
+    def create_random_scene(self, h, w, mode, params, channels):
+        scene = Utils.generate_random_scene(h, w, mode=mode, params=params, channels=channels)
+        if scene is not None:
+            self.signal_send_image.emit(scene)

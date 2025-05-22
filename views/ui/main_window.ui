@@ -638,6 +638,37 @@ image: url(:/newPrefix/images/analytics_96dp_000000_FILL0_wght400_GRAD0_opsz48.p
                </widget>
               </item>
               <item>
+               <widget class="QFrame" name="frame_18">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_14">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_create">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/imagesmode_96dp_000000_FILL0_wght400_GRAD0_opsz48.png);
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_10">
+                   <property name="text">
+                    <string>Создать</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
                <spacer name="horizontalSpacer_2">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>

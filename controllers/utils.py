@@ -55,6 +55,26 @@ class Utils:
 
 
     @staticmethod
+    def ensure_rgb(image: np.ndarray) -> np.ndarray:
+        """
+        Гарантирует, что изображение в формате RGB.
+
+        :param image: Входное изображение (grayscale, RGB, RGBA).
+        :return: RGB изображение (H, W, 3).
+        """
+        if image.ndim == 2:
+            return cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+        elif image.ndim == 3:
+            if image.shape[2] == 1:
+                return cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+            elif image.shape[2] == 4:
+                return cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
+            elif image.shape[2] == 3:
+                return image
+        raise ValueError("Unsupported image format.")
+
+
+    @staticmethod
     def get_rgb(image: np.ndarray, x: int, y: int) -> tuple:
         """
         Возвращает значения RGB для пикселя с координатами (x, y).
@@ -618,3 +638,37 @@ class Utils:
         correlation /= np.max(np.abs(correlation))  # Нормализация
 
         return correlation
+
+
+    @staticmethod
+    def generate_random_scene(h: int, w: int, mode: str = 'uniform', params: dict = None,
+                              channels: int = 1) -> np.ndarray:
+        """
+        Генерирует изображение сцены размером h×w с независимыми случайными амплитудами.
+
+        :param h: Высота изображения (кол-во строк).
+        :param w: Ширина изображения (кол-во столбцов).
+        :param mode: Тип распределения: 'uniform' или 'normal'.
+        :param params: Параметры распределения:
+                       - для 'uniform': {'a': ..., 'b': ...}
+                       - для 'normal': {'mean': ..., 'std': ...}
+        :param channels: Кол-во каналов (1 — grayscale, 3 — RGB).
+        :return: Сгенерированное изображение (np.uint8).
+        """
+        if params is None:
+            params = {}
+
+        if mode == 'uniform':
+            a = params.get('a', 0)
+            b = params.get('b', 255)
+            data = np.random.uniform(a, b, size=(h, w, channels) if channels == 3 else (h, w))
+        elif mode == 'normal':
+            mean = params.get('mean', 127)
+            std = params.get('std', 20)
+            data = np.random.normal(mean, std, size=(h, w, channels) if channels == 3 else (h, w))
+        else:
+            raise ValueError("Неподдерживаемый режим: выберите 'uniform' или 'normal'.")
+
+        data = np.clip(data, 0, 255).astype(np.uint8)
+        return data
+

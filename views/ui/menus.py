@@ -1,6 +1,6 @@
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (
-    QDialog, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QSpinBox
+    QDialog, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QSpinBox, QDoubleSpinBox, QComboBox
 )
 
 
@@ -267,3 +267,111 @@ class PixelEditDialog(QDialog):
         self.finished.emit()
         super().closeEvent(event)
 
+
+class RandomSceneDialog(QDialog):
+    signal_generate_scene = pyqtSignal(int, int, str, dict, int)  # h, w, mode, params, channels
+    finished = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(RandomSceneDialog, self).__init__(parent)
+        self.setWindowTitle("Генерация случайной сцены")
+
+        layout = QVBoxLayout()
+
+        # Размеры
+        size_layout = QHBoxLayout()
+        size_layout.addWidget(QLabel("Высота (h):"))
+        self.h_input = QSpinBox()
+        self.h_input.setRange(1, 5000)
+        self.h_input.setValue(512)
+        size_layout.addWidget(self.h_input)
+
+        size_layout.addWidget(QLabel("Ширина (w):"))
+        self.w_input = QSpinBox()
+        self.w_input.setRange(1, 5000)
+        self.w_input.setValue(512)
+        size_layout.addWidget(self.w_input)
+        layout.addLayout(size_layout)
+
+        # Выбор распределения
+        mode_layout = QHBoxLayout()
+        mode_layout.addWidget(QLabel("Распределение:"))
+        self.mode_combo = QComboBox()
+        self.mode_combo.addItems(["uniform", "normal"])
+        self.mode_combo.currentTextChanged.connect(self.update_params_visibility)
+        mode_layout.addWidget(self.mode_combo)
+        layout.addLayout(mode_layout)
+
+        # Параметры для равномерного распределения
+        self.uniform_layout = QHBoxLayout()
+        self.uniform_layout.addWidget(QLabel("a:"))
+        self.a_input = QDoubleSpinBox()
+        self.a_input.setRange(0, 255)
+        self.a_input.setValue(0)
+        self.uniform_layout.addWidget(self.a_input)
+
+        self.uniform_layout.addWidget(QLabel("b:"))
+        self.b_input = QDoubleSpinBox()
+        self.b_input.setRange(0, 255)
+        self.b_input.setValue(255)
+        self.uniform_layout.addWidget(self.b_input)
+        layout.addLayout(self.uniform_layout)
+
+        # Параметры для нормального распределения
+        self.normal_layout = QHBoxLayout()
+        self.normal_layout.addWidget(QLabel("mean:"))
+        self.mean_input = QDoubleSpinBox()
+        self.mean_input.setRange(0, 255)
+        self.mean_input.setValue(127)
+        self.normal_layout.addWidget(self.mean_input)
+
+        self.normal_layout.addWidget(QLabel("std:"))
+        self.std_input = QDoubleSpinBox()
+        self.std_input.setRange(0, 128)
+        self.std_input.setValue(20)
+        self.normal_layout.addWidget(self.std_input)
+        layout.addLayout(self.normal_layout)
+
+        # Каналы
+        channels_layout = QHBoxLayout()
+        channels_layout.addWidget(QLabel("Каналы:"))
+        self.channels_input = QSpinBox()
+        self.channels_input.setRange(1, 3)
+        self.channels_input.setValue(1)
+        channels_layout.addWidget(self.channels_input)
+        layout.addLayout(channels_layout)
+
+        # Кнопка генерации
+        self.generate_button = QPushButton("Сгенерировать")
+        self.generate_button.clicked.connect(self.emit_parameters)
+        layout.addWidget(self.generate_button)
+
+        self.setLayout(layout)
+        self.update_params_visibility()
+
+    def update_params_visibility(self):
+        mode = self.mode_combo.currentText()
+        self.uniform_layout.setEnabled(mode == "uniform")
+        self.a_input.setEnabled(mode == "uniform")
+        self.b_input.setEnabled(mode == "uniform")
+        self.normal_layout.setEnabled(mode == "normal")
+        self.mean_input.setEnabled(mode == "normal")
+        self.std_input.setEnabled(mode == "normal")
+
+    def emit_parameters(self):
+        h = self.h_input.value()
+        w = self.w_input.value()
+        mode = self.mode_combo.currentText()
+        channels = self.channels_input.value()
+
+        if mode == "uniform":
+            params = {"a": self.a_input.value(), "b": self.b_input.value()}
+        else:
+            params = {"mean": self.mean_input.value(), "std": self.std_input.value()}
+
+        self.signal_generate_scene.emit(h, w, mode, params, channels)
+        self.close()
+
+    def closeEvent(self, event):
+        self.finished.emit()
+        super().closeEvent(event)
