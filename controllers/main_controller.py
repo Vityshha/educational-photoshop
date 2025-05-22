@@ -43,6 +43,7 @@ class MainController(QObject):
         self.view.pixel_edit_dialog.signal_set_amplitude.connect(self.set_amplitude)
         self.view.pixel_edit_dialog.signal_build_piecewise.connect(self.generate_piecewise_map)
         self.view.random_scene_dialog.signal_generate_scene.connect(self.create_random_scene)
+        self.view.smoothed_scene_dialog.signal_generate_smoothed.connect(self.create_smoothed_scene)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -200,3 +201,9 @@ class MainController(QObject):
         scene = Utils.generate_random_scene(h, w, mode=mode, params=params, channels=channels)
         if scene is not None:
             self.signal_send_image.emit(scene)
+
+
+    def create_smoothed_scene(self, h, w, r, mean, std):
+        smoothed, m_est, std_est = Utils.generate_smoothed_scene(h=h, w=w, r=r, mean=mean, std=std)
+        if smoothed is not None:
+            self.signal_send_image.emit(smoothed)

@@ -661,7 +661,38 @@ image: url(:/newPrefix/images/imagesmode_96dp_000000_FILL0_wght400_GRAD0_opsz48.
                  <item alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="label_10">
                    <property name="text">
-                    <string>Создать</string>
+                    <string>Построить 1</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="frame_19">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_15">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_create_smoothing">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/gradient_96dp_000000_FILL0_wght400_GRAD0_opsz48.png);
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_11">
+                   <property name="text">
+                    <string>Построить 2</string>
                    </property>
                   </widget>
                  </item>

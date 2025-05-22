@@ -375,3 +375,73 @@ class RandomSceneDialog(QDialog):
     def closeEvent(self, event):
         self.finished.emit()
         super().closeEvent(event)
+
+
+class SmoothedSceneDialog(QDialog):
+    signal_generate_smoothed = pyqtSignal(int, int, int, float, float)  # h, w, r, mean, std
+    finished = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(SmoothedSceneDialog, self).__init__(parent)
+        self.setWindowTitle("Генерация сглаженной сцены")
+
+        layout = QVBoxLayout()
+
+        # Размеры
+        size_layout = QHBoxLayout()
+        size_layout.addWidget(QLabel("Высота (h):"))
+        self.h_input = QSpinBox()
+        self.h_input.setRange(1, 5000)
+        self.h_input.setValue(512)
+        size_layout.addWidget(self.h_input)
+
+        size_layout.addWidget(QLabel("Ширина (w):"))
+        self.w_input = QSpinBox()
+        self.w_input.setRange(1, 5000)
+        self.w_input.setValue(512)
+        size_layout.addWidget(self.w_input)
+        layout.addLayout(size_layout)
+
+        # Радиус сглаживания
+        radius_layout = QHBoxLayout()
+        radius_layout.addWidget(QLabel("Радиус сглаживания (r):"))
+        self.r_input = QSpinBox()
+        self.r_input.setRange(0, 100)
+        self.r_input.setValue(3)
+        radius_layout.addWidget(self.r_input)
+        layout.addLayout(radius_layout)
+
+        # Параметры нормального распределения
+        dist_layout = QHBoxLayout()
+        dist_layout.addWidget(QLabel("Среднее (m):"))
+        self.mean_input = QDoubleSpinBox()
+        self.mean_input.setRange(0, 255)
+        self.mean_input.setValue(128)
+        dist_layout.addWidget(self.mean_input)
+
+        dist_layout.addWidget(QLabel("Ст. отклонение (σ):"))
+        self.std_input = QDoubleSpinBox()
+        self.std_input.setRange(0.1, 128)
+        self.std_input.setValue(20)
+        dist_layout.addWidget(self.std_input)
+        layout.addLayout(dist_layout)
+
+        # Кнопка генерации
+        self.generate_button = QPushButton("Сгенерировать сцену")
+        self.generate_button.clicked.connect(self.emit_parameters)
+        layout.addWidget(self.generate_button)
+
+        self.setLayout(layout)
+
+    def emit_parameters(self):
+        h = self.h_input.value()
+        w = self.w_input.value()
+        r = self.r_input.value()
+        mean = self.mean_input.value()
+        std = self.std_input.value()
+        self.signal_generate_smoothed.emit(h, w, r, mean, std)
+        self.close()
+
+    def closeEvent(self, event):
+        self.finished.emit()
+        super().closeEvent(event)

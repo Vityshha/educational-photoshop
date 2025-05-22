@@ -672,3 +672,31 @@ class Utils:
         data = np.clip(data, 0, 255).astype(np.uint8)
         return data
 
+
+    @staticmethod
+    def generate_smoothed_scene(h: int, w: int, r: int, mean: float = 127, std: float = 20) -> tuple:
+        """
+        Генерирует изображение сцены с нормальным распределением и сглаживанием по квадратной окрестности.
+
+        :param h: Высота изображения (строки).
+        :param w: Ширина изображения (столбцы).
+        :param r: Радиус квадратной окрестности для сглаживания.
+        :param mean: Среднее значение нормального распределения.
+        :param std: Стандартное отклонение нормального распределения.
+        :return: Кортеж (сглаженное изображение [np.uint8], оценка среднего, оценка std).
+        """
+        # 1. Выделение памяти + генерация сцены с шумом
+        raw = np.random.normal(mean, std, size=(h, w)).astype(np.float32)
+
+        # 2. Сглаживание методом скользящего суммирования (блюр по окрестности)
+        ksize = 2 * r + 1
+        smoothed = cv2.blur(raw, ksize=(ksize, ksize))
+
+        # 3. Квантование результата в диапазон [0, 255]
+        smoothed_clipped = np.clip(smoothed, 0, 255).astype(np.uint8)
+
+        # 4. Оценка среднего и стандартного отклонения по сглаженному изображению
+        m_est = float(np.mean(smoothed_clipped))
+        std_est = float(np.std(smoothed_clipped))
+
+        return smoothed_clipped, m_est, std_est
