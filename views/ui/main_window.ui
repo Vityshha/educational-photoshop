@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>944</width>
-    <height>627</height>
+    <width>1274</width>
+    <height>782</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -240,7 +240,7 @@ QPushButton:checked {
              <number>0</number>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="main_page">
              <layout class="QHBoxLayout" name="horizontalLayout_9">
@@ -607,6 +607,37 @@ image: url(:/newPrefix/images/heat_96dp.png);</string>
                </widget>
               </item>
               <item>
+               <widget class="QFrame" name="frame_17">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_13">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_amplitude">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/analytics_96dp_000000_FILL0_wght400_GRAD0_opsz48.png);
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_9">
+                   <property name="text">
+                    <string>Амплитуда</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
                <spacer name="horizontalSpacer_2">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -675,8 +706,8 @@ image: url(:/newPrefix/images/heat_96dp.png);</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>936</width>
-            <height>505</height>
+            <width>1266</width>
+            <height>659</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">

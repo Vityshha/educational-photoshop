@@ -165,3 +165,105 @@ class RotateDialog(QDialog):
     def closeEvent(self, event):
         self.finished.emit()
         super().closeEvent(event)
+
+
+
+class PixelEditDialog(QDialog):
+    signal_get_amplitude = pyqtSignal(int, int)
+    signal_set_amplitude = pyqtSignal(int, int, tuple)
+    signal_build_piecewise = pyqtSignal(int)
+    finished = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super(PixelEditDialog, self).__init__(parent)
+        self.setWindowTitle("Редактирование амплитуды пикселя")
+
+        layout = QVBoxLayout()
+
+        # Координаты X и Y
+        coord_layout = QHBoxLayout()
+        coord_layout.addWidget(QLabel("X:"))
+        self.x_input = QSpinBox()
+        self.x_input.setMinimum(0)
+        self.x_input.setMaximum(10000)
+        coord_layout.addWidget(self.x_input)
+
+        coord_layout.addWidget(QLabel("Y:"))
+        self.y_input = QSpinBox()
+        self.y_input.setMinimum(0)
+        self.y_input.setMaximum(10000)
+        coord_layout.addWidget(self.y_input)
+        layout.addLayout(coord_layout)
+
+        # Амплитуда (R, G, B)
+        amp_layout = QHBoxLayout()
+        amp_layout.addWidget(QLabel("Амплитуда R:"))
+        self.r_input = QSpinBox()
+        self.r_input.setRange(0, 255)
+        amp_layout.addWidget(self.r_input)
+
+        amp_layout.addWidget(QLabel("G:"))
+        self.g_input = QSpinBox()
+        self.g_input.setRange(0, 255)
+        amp_layout.addWidget(self.g_input)
+
+        amp_layout.addWidget(QLabel("B:"))
+        self.b_input = QSpinBox()
+        self.b_input.setRange(0, 255)
+        amp_layout.addWidget(self.b_input)
+
+        layout.addLayout(amp_layout)
+
+        # Параметр block_size
+        block_layout = QHBoxLayout()
+        block_layout.addWidget(QLabel("Размер блока:"))
+        self.block_input = QSpinBox()
+        self.block_input.setRange(1, 500)
+        self.block_input.setValue(32)
+        block_layout.addWidget(self.block_input)
+        layout.addLayout(block_layout)
+
+        # Кнопки
+        btn_layout = QHBoxLayout()
+        self.get_button = QPushButton("Получить")
+        self.get_button.clicked.connect(self.emit_get_amplitude)
+        btn_layout.addWidget(self.get_button)
+
+        self.set_button = QPushButton("Установить")
+        self.set_button.clicked.connect(self.emit_set_amplitude)
+        btn_layout.addWidget(self.set_button)
+
+        layout.addLayout(btn_layout)
+
+        # Построение мозаики
+        self.build_button = QPushButton("Построить изображение с кусочно-постоянными амплитудами")
+        self.build_button.clicked.connect(self.emit_build_piecewise)
+        layout.addWidget(self.build_button)
+
+        self.setLayout(layout)
+
+    def emit_get_amplitude(self):
+        x = self.x_input.value()
+        y = self.y_input.value()
+        self.signal_get_amplitude.emit(x, y)
+
+    def emit_set_amplitude(self):
+        x = self.x_input.value()
+        y = self.y_input.value()
+        rgb = (self.r_input.value(), self.g_input.value(), self.b_input.value())
+        self.signal_set_amplitude.emit(x, y, rgb)
+
+    def emit_build_piecewise(self):
+        block_size = self.block_input.value()
+        self.signal_build_piecewise.emit(block_size)
+
+    def set_amplitude_value(self, rgb: tuple):
+        r, g, b = rgb
+        self.r_input.setValue(int(r))
+        self.g_input.setValue(int(g))
+        self.b_input.setValue(int(b))
+
+    def closeEvent(self, event):
+        self.finished.emit()
+        super().closeEvent(event)
+

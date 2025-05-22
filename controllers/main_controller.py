@@ -39,6 +39,9 @@ class MainController(QObject):
         self.view.denoise_dialog.signal_estimate_noise.connect(self.measure_noise)
         self.view.rotate_dialog.signal_rotate_image.connect(self.rotate_image)
         self.view.ui.btn_crop.clicked.connect(self.crop_image)
+        self.view.pixel_edit_dialog.signal_get_amplitude.connect(self.get_amplitude)
+        self.view.pixel_edit_dialog.signal_set_amplitude.connect(self.set_amplitude)
+        self.view.pixel_edit_dialog.signal_build_piecewise.connect(self.generate_piecewise_map)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -167,3 +170,25 @@ class MainController(QObject):
         if select_zone is not None:
             crop = Utils.crop_to_roi(select_zone)
             self.signal_send_image.emit(crop)
+
+
+    def get_amplitude(self, x, y):
+        image = self.image_model.get_current_image()
+        if image is not None:
+            pixel = Utils.get_pixel_value(image, x, y)
+            print(pixel)
+            self.view.pixel_edit_dialog.set_amplitude_value(pixel)
+
+
+    def set_amplitude(self, x, y, rgb):
+        image = self.image_model.get_current_image()
+        if image is not None:
+            image = Utils.set_pixel_value(image, x, y, rgb)
+            self.signal_send_image.emit(image)
+
+
+    def generate_piecewise_map(self, block_size):
+        image = self.image_model.get_current_image()
+        if image is not None:
+            image = Utils.generate_piecewise_grid(image, block_size)
+            self.signal_send_image.emit(image)

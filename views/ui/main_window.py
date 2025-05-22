@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(944, 627)
+        MainWindow.resize(1274, 782)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
@@ -307,6 +307,23 @@ class Ui_MainWindow(object):
         self.label_6.setObjectName("label_6")
         self.verticalLayout_10.addWidget(self.label_6, 0, QtCore.Qt.AlignHCenter)
         self.horizontalLayout_10.addWidget(self.frame_15)
+        self.frame_17 = QtWidgets.QFrame(self.tools_page)
+        self.frame_17.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_17.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_17.setObjectName("frame_17")
+        self.verticalLayout_13 = QtWidgets.QVBoxLayout(self.frame_17)
+        self.verticalLayout_13.setObjectName("verticalLayout_13")
+        self.btn_amplitude = QtWidgets.QPushButton(self.frame_17)
+        self.btn_amplitude.setStyleSheet("background-color: transparent;\n"
+"image: url(:/newPrefix/images/analytics_96dp_000000_FILL0_wght400_GRAD0_opsz48.png);\n"
+"")
+        self.btn_amplitude.setText("")
+        self.btn_amplitude.setObjectName("btn_amplitude")
+        self.verticalLayout_13.addWidget(self.btn_amplitude, 0, QtCore.Qt.AlignHCenter)
+        self.label_9 = QtWidgets.QLabel(self.frame_17)
+        self.label_9.setObjectName("label_9")
+        self.verticalLayout_13.addWidget(self.label_9, 0, QtCore.Qt.AlignHCenter)
+        self.horizontalLayout_10.addWidget(self.frame_17)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_10.addItem(spacerItem2)
         self.stackedWidget.addWidget(self.tools_page)
@@ -332,7 +349,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 936, 505))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 1266, 659))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_5.setContentsMargins(9, -1, -1, -1)
@@ -470,7 +487,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -488,6 +505,7 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "Контрастирование"))
         self.label_5.setText(_translate("MainWindow", "Сглаживание"))
         self.label_6.setText(_translate("MainWindow", "Работа с шумом"))
+        self.label_9.setText(_translate("MainWindow", "Амплитуда"))
         self.lbl_pos.setText(_translate("MainWindow", "x:..., y:..."))
         self.lbl_rgb.setText(_translate("MainWindow", "R:255, G:255, B: 255"))
         self.lbl_select.setText(_translate("MainWindow", "620 x 514 пкс"))

@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="newPrefix">
+    <file>images/analytics_96dp_000000_FILL0_wght400_GRAD0_opsz48.png</file>
     <file>images/crop.png</file>
     <file>images/switch.png</file>
     <file>images/heat_96dp.png</file>

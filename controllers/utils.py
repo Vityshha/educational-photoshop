@@ -560,36 +560,36 @@ class Utils:
             image[y, x] = tuple(value)
         else:
             raise ValueError("Неподдерживаемый формат изображения.")
+        return image
 
 
     @staticmethod
-    def create_piecewise_constant_map(image_shape: tuple, regions: list, fill_value=128) -> np.ndarray:
+    def generate_piecewise_grid(image: np.ndarray, block_size: int = 32) -> np.ndarray:
         """
-        Создаёт изображение с кусочно-постоянными амплитудами по заданным регионам.
+        Генерирует изображение с кусочно-постоянными амплитудами, разбивая исходное на сетку блоков.
 
-        :param image_shape: Размер изображения (h, w) или (h, w, 3)
-        :param regions: Список кортежей (region_mask, value), где:
-                        - region_mask — бинарная маска (2D np.ndarray), 1 внутри области, 0 — снаружи
-                        - value — амплитуда (int для grayscale, tuple для RGB)
-        :param fill_value: Значение фона вне всех областей.
-        :return: Новое изображение.
+        :param image: Исходное изображение (используется размер).
+        :param block_size: Размер одного блока в пикселях.
+        :return: Изображение с мозаикой из блоков с постоянной амплитудой.
         """
-        if len(image_shape) == 2:
-            output = np.ones(image_shape, dtype=np.uint8) * fill_value
-        elif len(image_shape) == 3:
-            output = np.ones(image_shape, dtype=np.uint8) * fill_value
-        else:
-            raise ValueError("Неверная форма изображения")
+        h, w = image.shape[:2]
+        is_rgb = image.ndim == 3
 
-        for mask, value in regions:
-            if mask.shape != image_shape[:2]:
-                raise ValueError("Маска должна совпадать по размеру с изображением")
+        output = np.zeros_like(image)
 
-            if output.ndim == 2:
-                output[mask == 1] = value
-            else:
-                for c in range(3):
-                    output[:, :, c][mask == 1] = value[c]
+        for y in range(0, h, block_size):
+            for x in range(0, w, block_size):
+                y_end = min(y + block_size, h)
+                x_end = min(x + block_size, w)
+
+                if is_rgb:
+                    block = image[y:y_end, x:x_end, :]
+                    mean_color = tuple(int(np.mean(block[:, :, c])) for c in range(3))
+                    output[y:y_end, x:x_end] = mean_color
+                else:
+                    block = image[y:y_end, x:x_end]
+                    mean_val = int(np.mean(block))
+                    output[y:y_end, x:x_end] = mean_val
 
         return output
 
