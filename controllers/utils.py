@@ -4,6 +4,7 @@ from scipy.signal import fftconvolve
 
 from PyQt5.QtGui import  QPainterPath
 from PyQt5.QtCore import QRect
+from scipy.stats import stats
 
 
 class Utils:
@@ -768,4 +769,39 @@ class Utils:
             prob_correct = correct_count / outside_values.size
 
         return classified_mask, prob_correct
+
+
+    @staticmethod
+    def test_uniform_distribution(image: np.ndarray, roi_image: np.ndarray = None, bins: int = 16,
+                                  alpha: float = 0.05) -> tuple:
+        """
+        Проверяет гипотезу о равномерном распределении яркостей в ROI с использованием критерия χ².
+
+        :param image: Входное изображение (grayscale или RGB).
+        :param roi_image: Изображение ROI (или None — используется всё изображение).
+        :param bins: Количество интервалов в гистограмме (по умолчанию 16).
+        :param alpha: Уровень значимости (по умолчанию 0.05).
+        :return: Кортеж (chi2_statistic, p_value, reject), где reject=True означает отклонение H0.
+        """
+        if image.ndim == 3:
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        elif image.ndim != 2:
+            raise ValueError("Изображение должно быть grayscale или RGB.")
+
+        if roi_image is None:
+            mask = np.ones_like(image, dtype=np.uint8) * 255
+        else:
+            mask = Utils.get_roi_mask_from_region(image, roi_image)
+
+        data = image[mask == 255]
+
+        hist, bin_edges = np.histogram(data, bins=bins, range=(0, 256))
+
+        expected = np.full(bins, fill_value=len(data) / bins)
+
+        chi2_statistic, p_value = stats.chisquare(hist, expected)
+
+        reject = p_value < alpha
+
+        return chi2_statistic, p_value, reject
 

@@ -174,3 +174,54 @@ class UtilsWithDisplay:
         cv2.imshow("Segmentation Accuracy", canvas)
         cv2.waitKey(0)
 
+
+    @staticmethod
+    def show_uniformity_test_result(image: np.ndarray, roi_image: np.ndarray = None, bins: int = 16,
+                                    alpha: float = 0.05):
+        """
+        Отображает гистограмму яркостей в ROI и результат проверки гипотезы о равномерности.
+        """
+        import matplotlib.pyplot as plt
+
+        try:
+            chi2, p_value, reject = Utils.test_uniform_distribution(image, roi_image, bins=bins, alpha=alpha)
+            conclusion = "Rejected" if reject else "Not Rejected"
+            label_text = f"Chi² = {chi2:.2f}, p = {p_value:.4f}, α = {alpha} → {conclusion}"
+
+            if roi_image is None:
+                mask = np.ones_like(image, dtype=np.uint8) * 255
+            else:
+                mask = Utils.get_roi_mask_from_region(image, roi_image)
+
+            data = image[mask == 255]
+
+            hist, bin_edges = np.histogram(data, bins=bins, range=(0, 256))
+
+            plt.figure(figsize=(6, 4))
+            plt.bar(range(bins), hist, width=0.8, color='skyblue', edgecolor='black')
+            plt.axhline(y=len(data) / bins, color='r', linestyle='--', label='Expected (uniform)')
+            plt.title("Uniformity Test Histogram")
+            plt.xlabel("Bins")
+            plt.ylabel("Frequency")
+            plt.legend()
+            plt.text(0.02, 0.95, label_text, transform=plt.gca().transAxes,
+                     fontsize=10, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
+            plt.tight_layout()
+
+            plt.draw()
+            fig = plt.gcf()
+            fig.canvas.draw()
+            img_np = np.array(fig.canvas.renderer.buffer_rgba())
+            img_bgr = cv2.cvtColor(img_np, cv2.COLOR_RGBA2BGR)
+            plt.close()
+
+            cv2.imshow("Uniformity Test Result", img_bgr)
+            cv2.waitKey(0)
+
+        except ValueError as e:
+            canvas = np.ones((100, 600, 3), dtype=np.uint8) * 255
+            cv2.putText(canvas, f"Ошибка: {str(e)}", (10, 60),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.imshow("Uniformity Test Result", canvas)
+            cv2.waitKey(0)
+
