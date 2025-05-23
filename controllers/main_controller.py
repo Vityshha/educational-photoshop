@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject
 
@@ -45,6 +46,7 @@ class MainController(QObject):
         self.view.random_scene_dialog.signal_generate_scene.connect(self.create_random_scene)
         self.view.smoothed_scene_dialog.signal_generate_smoothed.connect(self.create_smoothed_scene)
         self.view.ui.btn_correlation.clicked.connect(self.calculate_correlation_fun)
+        self.view.ui.btn_segmentation.clicked.connect(self.segmentation)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -215,3 +217,12 @@ class MainController(QObject):
         select_zone = self.image_model.get_select_zone()
         if image is not None:
             UtilsWithDisplay.show_correlation_function(None, image, select_zone)
+
+
+    def segmentation(self):
+        image = self.image_model.get_current_image()
+        select_zone = self.image_model.get_select_zone()
+        if image is not None:
+            classified_mask, prob_correct = Utils.segment_simple_roi(image, select_zone)
+            self.signal_send_image.emit(classified_mask)
+            UtilsWithDisplay.show_segmentation_accuracy(prob_correct)

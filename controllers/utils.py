@@ -713,3 +713,59 @@ class Utils:
         std_est = float(np.std(smoothed_clipped))
 
         return smoothed_clipped, m_est, std_est
+
+
+    @staticmethod
+    def segment_simple_roi(image: np.ndarray, roi_mask: np.ndarray = None) -> tuple:
+        """
+        Выполняет сегментацию пикселей внутри зоны интереса D по статистике границы ∂D.
+
+        :param image: Входное изображение (grayscale или RGB).
+        :param roi_mask: Бинарная маска ROI (0/255 или 0/1), или None — тогда ROI = всё изображение.
+        :return: (segmentation_mask, prob_correct_class)
+        """
+        if image.ndim == 3:
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        elif image.ndim != 2:
+            raise ValueError("Ожидается изображение в формате grayscale или RGB.")
+
+        if roi_mask is None:
+            # Если маска не передана — использовать всё изображение как ROI
+            roi_mask_bin = np.ones_like(image, dtype=np.uint8)
+        else:
+            # Обработка случая, когда roi_mask — это не маска, а просто копия изображения
+            roi_mask = Utils.get_roi_mask_from_region(image, roi_mask)
+            roi_mask_bin = (roi_mask > 0).astype(np.uint8)
+
+        # Граница зоны интереса: ∂D = D - erode(D)
+        kernel = np.ones((3, 3), np.uint8)
+        inner_mask = cv2.erode(roi_mask_bin, kernel, iterations=1)
+        boundary_mask = roi_mask_bin - inner_mask  # ∂D
+        interior_mask = roi_mask_bin - boundary_mask  # D \ ∂D
+
+        # Статистика по границе
+        border_values = image[roi_mask_bin == 1]
+        if border_values.size == 0:
+            raise ValueError("Граница ROI пуста — невозможно оценить статистику.")
+        mean_border = np.mean(border_values)
+        std_border = np.std(border_values)
+
+        # Классификация внутренних пикселей
+        classified_mask = np.zeros_like(image, dtype=np.uint8)
+        lower = mean_border - std_border
+        upper = mean_border + std_border
+        condition = (image >= lower) & (image <= upper)
+        classified_mask[(interior_mask == 1) & condition] = 255  # объект
+        classified_mask[boundary_mask == 1] = 128  # граница
+
+        # Оценка качества классификации фона
+        outside_mask = (roi_mask_bin == 0)
+        outside_values = image[outside_mask]
+        if outside_values.size == 0:
+            prob_correct = 1.0
+        else:
+            correct_count = np.sum((outside_values < lower) | (outside_values > upper))
+            prob_correct = correct_count / outside_values.size
+
+        return classified_mask, prob_correct
+

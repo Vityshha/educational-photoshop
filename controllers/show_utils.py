@@ -153,3 +153,24 @@ class UtilsWithDisplay:
 
         dialog.resize(800, 800)
         dialog.exec_()
+
+
+    @staticmethod
+    def show_segmentation_accuracy(prob_correct: float):
+        """
+        Отображает оценку вероятности правильной классификации фона после сегментации.
+        """
+        text = f"Background accuracy: {prob_correct * 100:.2f}%"
+
+        # Оценка ширины текста в пикселях
+        (text_width, _), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)
+        canvas_width = max(300, text_width + 20)
+        canvas_height = 80
+
+        canvas = np.ones((canvas_height, canvas_width, 3), dtype=np.uint8) * 255
+        cv2.putText(canvas, text, (10, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2, cv2.LINE_AA)
+
+        cv2.imshow("Segmentation Accuracy", canvas)
+        cv2.waitKey(0)
+
