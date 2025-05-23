@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from scipy.signal import fftconvolve
+import scipy.signal
 
 from PyQt5.QtGui import  QPainterPath
 from PyQt5.QtCore import QRect
@@ -804,4 +805,60 @@ class Utils:
         reject = p_value < alpha
 
         return chi2_statistic, p_value, reject
+
+
+    @staticmethod
+    def segment_complex_roi(image: np.ndarray, roi_image: np.ndarray = None, bins: int = 256) -> np.ndarray:
+        """
+        Выполняет сегментацию сложной зоны интереса по анализу гистограммы:
+        - поиск локальных минимумов и максимумов;
+        - определение порогов;
+        - выделение объектов.
+
+        :param image: Входное изображение (grayscale или RGB).
+        :param roi_image: Маска ROI или None (вся сцена).
+        :param bins: Количество интервалов в гистограмме.
+        :return: Сегментированная бинарная маска (0 — фон, 255 — объект).
+        """
+
+        if image.ndim == 3:
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        elif image.ndim != 2:
+            raise ValueError("Изображение должно быть grayscale или RGB.")
+
+        if roi_image is None:
+            mask = np.ones_like(image, dtype=np.uint8) * 255
+        else:
+            mask = Utils.get_roi_mask_from_region(image, roi_image)
+
+        data = image[mask == 255]
+        if data.size == 0:
+            raise ValueError("ROI пуста или не задана.")
+
+        hist, bin_edges = np.histogram(data, bins=bins, range=(0, 256))
+
+        peaks, _ = scipy.signal.find_peaks(hist)
+        inv_hist = -hist
+        valleys, _ = scipy.signal.find_peaks(inv_hist)
+
+        peak_threshold = 0.05 * np.max(hist)
+        significant_peaks = [p for p in peaks if hist[p] >= peak_threshold]
+        significant_peaks.sort()
+
+        thresholds = []
+        for i in range(len(significant_peaks) - 1):
+            left = significant_peaks[i]
+            right = significant_peaks[i + 1]
+            valley_between = [v for v in valleys if left < v < right]
+            if valley_between:
+                min_valley = min(valley_between, key=lambda v: hist[v])
+                thresholds.append(bin_edges[min_valley])
+
+        segmented = np.zeros_like(image, dtype=np.uint8)
+        for i, t in enumerate(thresholds):
+            segmented[(image >= t)] = 255
+
+        segmented[mask == 0] = 0
+        return segmented
+
 

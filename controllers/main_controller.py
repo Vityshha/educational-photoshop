@@ -48,6 +48,7 @@ class MainController(QObject):
         self.view.ui.btn_correlation.clicked.connect(self.calculate_correlation_fun)
         self.view.ui.btn_segmentation.clicked.connect(self.segmentation)
         self.view.ui.btn_hypothesis.clicked.connect(self.hypothesis_testing)
+        self.view.ui.btn_complex.clicked.connect(self.segmentation_complex)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -234,3 +235,11 @@ class MainController(QObject):
         select_zone = self.image_model.get_select_zone()
         if image is not None:
             UtilsWithDisplay.show_uniformity_test_result(image, select_zone)
+
+
+    def segmentation_complex(self):
+        image = self.image_model.get_current_image()
+        select_zone = self.image_model.get_select_zone()
+        if image is not None:
+            classified_mask = Utils.segment_complex_roi(image, select_zone)
+            self.signal_send_image.emit(classified_mask)
