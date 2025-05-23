@@ -1,6 +1,6 @@
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (
-    QDialog, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QSpinBox, QDoubleSpinBox, QComboBox
+    QDialog, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QSpinBox, QDoubleSpinBox, QComboBox, QLineEdit, QFileDialog
 )
 
 
@@ -445,3 +445,86 @@ class SmoothedSceneDialog(QDialog):
     def closeEvent(self, event):
         self.finished.emit()
         super().closeEvent(event)
+
+
+class ObjectProjectionDialog(QDialog):
+    signal_run_projection = pyqtSignal(str, float, float, int, str)  # image_path, mask_path, mean, std, radius, distribution
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Добавление объекта по маске")
+        self.setMinimumWidth(400)
+
+        layout = QVBoxLayout()
+
+        # Загрузка маски
+        mask_layout = QHBoxLayout()
+        self.mask_input = QLineEdit()
+        btn_browse_mask = QPushButton("Обзор")
+        btn_browse_mask.clicked.connect(self.browse_mask)
+        mask_layout.addWidget(QLabel("Маска объекта:"))
+        mask_layout.addWidget(self.mask_input)
+        mask_layout.addWidget(btn_browse_mask)
+        layout.addLayout(mask_layout)
+
+        # Параметры распределения
+        self.mean_input = QDoubleSpinBox()
+        self.mean_input.setRange(0, 255)
+        self.mean_input.setValue(128)
+        self.mean_input.setSingleStep(1.0)
+
+        self.std_input = QDoubleSpinBox()
+        self.std_input.setRange(0, 128)
+        self.std_input.setValue(20.0)
+        self.std_input.setSingleStep(1.0)
+
+        self.radius_input = QSpinBox()
+        self.radius_input.setRange(0, 20)
+        self.radius_input.setValue(2)
+
+        dist_layout = QHBoxLayout()
+        self.dist_select = QComboBox()
+        self.dist_select.addItems(["normal", "uniform"])
+        dist_layout.addWidget(QLabel("Распределение:"))
+        dist_layout.addWidget(self.dist_select)
+        layout.addLayout(dist_layout)
+
+        layout.addWidget(QLabel("Среднее значение (mean):"))
+        layout.addWidget(self.mean_input)
+
+        layout.addWidget(QLabel("Стандартное отклонение (std):"))
+        layout.addWidget(self.std_input)
+
+        layout.addWidget(QLabel("Радиус сглаживания:"))
+        layout.addWidget(self.radius_input)
+
+        # Кнопка запуска
+        run_btn = QPushButton("Добавить объект")
+        run_btn.clicked.connect(self.emit_projection)
+        layout.addWidget(run_btn)
+
+        self.setLayout(layout)
+
+    def browse_image(self):
+        path, _ = QFileDialog.getOpenFileName(self, "Выберите изображение", "", "Изображения (*.png *.jpg *.bmp)")
+        if path:
+            self.img_input.setText(path)
+
+    def browse_mask(self):
+        path, _ = QFileDialog.getOpenFileName(self, "Выберите маску", "", "Изображения (*.png *.jpg *.bmp)")
+        if path:
+            self.mask_input.setText(path)
+
+    def emit_projection(self):
+        mask_path = self.mask_input.text()
+        mean = self.mean_input.value()
+        std = self.std_input.value()
+        radius = self.radius_input.value()
+        dist = self.dist_select.currentText()
+
+        if mask_path:
+            self.signal_run_projection.emit(mask_path, mean, std, radius, dist)
+            self.accept()
+        else:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Ошибка", "Укажите путь к изображению и маске.")

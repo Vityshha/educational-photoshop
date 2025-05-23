@@ -862,3 +862,63 @@ class Utils:
         return segmented
 
 
+    @staticmethod
+    def add_object_projection_from_file(
+            base_image: np.ndarray,
+            mask_path: str,
+            mean: float,
+            std: float,
+            radius: int,
+            distribution: str = "normal"
+    ) -> np.ndarray:
+        """
+        Добавляет объект на изображение по маске, загруженной из файла.
+
+        :param base_image: Исходное изображение сцены (grayscale или RGB).
+        :param mask_path: Путь к бинарной карте объекта (изображение 2D).
+        :param mean: Среднее значение амплитуд объекта.
+        :param std: Стандартное отклонение амплитуд объекта.
+        :param radius: Радиус сглаживания объекта.
+        :param distribution: Тип распределения: 'normal' или 'uniform'.
+        :return: Изображение с добавленным объектом.
+        """
+        # Загрузка маски
+        mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        if mask is None:
+            raise ValueError(f"Не удалось загрузить маску из файла: {mask_path}")
+
+        if mask.ndim != 2:
+            raise ValueError("Ожидалась 2D маска объекта.")
+
+        bin_mask = (mask > 0).astype(np.uint8)
+
+        h, w = bin_mask.shape
+        if base_image.shape[:2] != (h, w):
+            raise ValueError("Размеры маски и изображения не совпадают.")
+
+        # Генерация случайных амплитуд
+        if distribution == "normal":
+            object_data = np.random.normal(mean, std, size=(h, w)).astype(np.float32)
+        elif distribution == "uniform":
+            object_data = np.random.uniform(mean - std, mean + std, size=(h, w)).astype(np.float32)
+        else:
+            raise ValueError("Поддерживаются только 'normal' и 'uniform' распределения.")
+
+        object_data = np.clip(object_data, 0, 255)
+
+        if radius > 0:
+            object_data = cv2.blur(object_data, (2 * radius + 1, 2 * radius + 1))
+
+        object_masked = object_data * bin_mask
+
+        result = base_image.copy()
+        if result.ndim == 2:
+            result[bin_mask == 1] = object_masked[bin_mask == 1].astype(np.uint8)
+        elif result.ndim == 3:
+            for c in range(3):
+                result[:, :, c][bin_mask == 1] = object_masked[bin_mask == 1].astype(np.uint8)
+        else:
+            raise ValueError("Изображение должно быть 2D или 3-канальным.")
+
+        return result
+

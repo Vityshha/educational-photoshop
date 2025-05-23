@@ -824,6 +824,37 @@ image: url(:/newPrefix/images/draw_abstract_96dp_000000_FILL0_wght400_GRAD0_opsz
                </widget>
               </item>
               <item>
+               <widget class="QFrame" name="frame_24">
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_20">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QPushButton" name="btn_overlay">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: transparent;
+image: url(:/newPrefix/images/layers_96dp_000000_FILL0_wght400_GRAD0_opsz48.png);
+</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_16">
+                   <property name="text">
+                    <string>Наложение</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
                <spacer name="horizontalSpacer_2">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -893,7 +924,7 @@ image: url(:/newPrefix/images/draw_abstract_96dp_000000_FILL0_wght400_GRAD0_opsz
             <x>0</x>
             <y>0</y>
             <width>1266</width>
-            <height>659</height>
+            <height>660</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">

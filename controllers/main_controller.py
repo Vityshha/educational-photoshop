@@ -50,6 +50,7 @@ class MainController(QObject):
         self.view.ui.btn_hypothesis.clicked.connect(self.hypothesis_testing)
         self.view.ui.btn_complex.clicked.connect(self.segmentation_complex)
         self.view.signal_clear_selected_zone.connect(self.clear_select_zone)
+        self.view.object_projection_dialog.signal_run_projection.connect(self.add_projection)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -248,3 +249,18 @@ class MainController(QObject):
 
     def clear_select_zone(self):
         self.image_model.clear_select_zone()
+
+
+    def add_projection(self, mask_path, mean, std, radius, distribution):
+        image = self.image_model.get_current_image()
+        if image is not None:
+            result = Utils.add_object_projection_from_file(
+                base_image=image,
+                mask_path=mask_path,
+                mean=mean,
+                std=std,
+                radius=radius,
+                distribution=distribution
+            )
+
+            self.signal_send_image.emit(result)

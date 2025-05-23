@@ -8,7 +8,7 @@ import numpy as np
 
 from views.custom_combo_box import FileComboBox, SelectComboBox
 from views.custom_dialog_window import ScaleMenu
-from views.ui.menus import CalcMenu, SmoothingDialog, DenoiseDialog, RotateDialog, PixelEditDialog, RandomSceneDialog, SmoothedSceneDialog
+from views.ui.menus import CalcMenu, SmoothingDialog, DenoiseDialog, RotateDialog, PixelEditDialog, RandomSceneDialog, SmoothedSceneDialog, ObjectProjectionDialog
 
 from views.views_enums import ScaleMode, CalcMode
 from models.image_model import ImageModel
@@ -80,6 +80,7 @@ class MainWindow(QMainWindow):
         self.ui.btn_amplitude.clicked.connect(lambda: self.pixel_edit_dialog.show())
         self.ui.btn_create.clicked.connect(lambda: self.random_scene_dialog.show())
         self.ui.btn_create_smoothing.clicked.connect(lambda: self.smoothed_scene_dialog.show())
+        self.ui.btn_overlay.clicked.connect(lambda: self.object_projection_dialog.show())
 
         self.file_combo_box.activated.connect(self.on_combo_box_changed)
         self.select_combo_box.activated.connect(self.on_combo_box_select_change)
@@ -109,6 +110,7 @@ class MainWindow(QMainWindow):
         self.pixel_edit_dialog = PixelEditDialog()
         self.random_scene_dialog = RandomSceneDialog()
         self.smoothed_scene_dialog = SmoothedSceneDialog()
+        self.object_projection_dialog = ObjectProjectionDialog()
 
 
     def close_dialog_resize(self):
