@@ -28,6 +28,7 @@ class MainWindow(QMainWindow):
     signal_send_selected_zone = pyqtSignal(object)
     signal_calc_statistics = pyqtSignal(int, bool)
     signal_smoothing_image = pyqtSignal(int)
+    signal_clear_selected_zone = pyqtSignal()
 
     def __init__(self, image_model: ImageModel):
         super().__init__()
@@ -336,6 +337,7 @@ class MainWindow(QMainWindow):
             self.ui.lbl_paint.setPixmap(self.original_pixmap)
         else:
             self.ui.lbl_paint.setPixmap(self.create_white_pixmap(self.ui.lbl_paint.size()))
+        self.signal_clear_selected_zone.emit()
 
 
     def open_image(self):

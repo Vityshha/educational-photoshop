@@ -49,6 +49,7 @@ class MainController(QObject):
         self.view.ui.btn_segmentation.clicked.connect(self.segmentation)
         self.view.ui.btn_hypothesis.clicked.connect(self.hypothesis_testing)
         self.view.ui.btn_complex.clicked.connect(self.segmentation_complex)
+        self.view.signal_clear_selected_zone.connect(self.clear_select_zone)
 
         self.image_model.signal_image_change.connect(self.view.put_image)
 
@@ -243,3 +244,7 @@ class MainController(QObject):
         if image is not None:
             classified_mask = Utils.segment_complex_roi(image, select_zone)
             self.signal_send_image.emit(classified_mask)
+
+
+    def clear_select_zone(self):
+        self.image_model.clear_select_zone()

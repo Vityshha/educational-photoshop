@@ -42,7 +42,10 @@ class ImageModel(QObject):
 
 
     def get_select_zone(self):
-        return self.select_zone
+        if self.select_zone is not None:
+            return self.select_zone
+        else:
+            return self.history_images[self.current_index]
 
 
     def get_undo_image(self):
